@@ -1,0 +1,43 @@
+{
+    "1400": {
+      "status": 400,
+      "code": 0,
+      "message": "잘못된 요청입니다.",
+      "description": "Bad Request"
+    },
+    
+    "1300": {
+        "status": 400,
+        "code": 0,
+        "message": "해당 파라미터와 일치하는 값을 찾지 못하였습니다",
+        "description": ""
+      },
+    
+    "1301": {
+    "status": 400,
+    "code": 0,
+    "message": "닉네임이 중복됩니다.",
+    "description": "Exist nickname"
+    },
+    
+    "1401": {
+      "status": 400,
+      "code": 0,
+      "message": "파라미터가 잘못되었습니다.",
+      "description": "invalid parameter"
+    },
+
+    "1500": {
+      "status": 500,
+      "code": 0,
+      "message": "서버 오류",
+      "description": "Internal Server Error"
+    },
+  
+
+    
+    "1200": {
+      "status": true,
+      "message": "success"
+    }
+}  
