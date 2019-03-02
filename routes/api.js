@@ -5,21 +5,22 @@ const alarmCtrl = require('../controllers/AlarmCtrl');
 const weatherCtrl = require('../controllers/WeatherDataCtrl')
 
 module.exports=(router)=>{
-    /*
+    
     router.route('/').get(function(req, res,next){
         res.writeHead('200', {'Content-Type': 'text/html;charset=utf8'});
         res.write('<h2>사용자 리스트 조회 중 오류발생</h2>');
         res.write('<p>'+err.stack+'</p>');
         res.end();
     });
-    */
+    
    
 
     router.route('/main').post(userCtrl.register_nickname);
-/*
-    router.route('/setting/nickname')
-    .get(userCtrl.show_nickname());
-    
+    router.route('/setting/nickname/:nickname')
+    .get(userCtrl.show_nickname);
+    router.route('/setting/nickname/:prevName/:newName')
+    .put(userCtrl.edit_nickname);
+/*    
     //main
     router.route('/main/realtime')
     .get(userCtrl.show_curInfo());
@@ -43,7 +44,7 @@ module.exports=(router)=>{
     .put(alarmCtrl.edit_alarm());
     router.route('/setting/nickname')
     .get(alarmCtrl.show_nickname())
-    .put(salarmCtrl.edit_nickname());
+    
 */
     return router;
 }
