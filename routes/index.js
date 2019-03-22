@@ -10,6 +10,6 @@ const router = require('express').Router();
 
 module.exports = (app) => {
 
-    app.use('/', require('./api')(router));
+    app.use('/api', require('./api')(router));
   
 }

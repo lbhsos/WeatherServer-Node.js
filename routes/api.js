@@ -2,20 +2,14 @@
 const userCtrl = require('../controllers/UserCtrl');
 const boardCtrl = require('../controllers/BoardCtrl');
 const alarmCtrl = require('../controllers/AlarmCtrl');
-const weatherCtrl = require('../controllers/WeatherDataCtrl')
-
+const weatherCtrl = require('../controllers/WeatherDataCtrl');
+const weatherApi = require('./weatherApi');
 module.exports=(router)=>{
     
-    router.route('/').get(function(req, res,next){
-        res.writeHead('200', {'Content-Type': 'text/html;charset=utf8'});
-        res.write('<h2>사용자 리스트 조회 중 오류발생</h2>');
-        res.write('<p>'+err.stack+'</p>');
-        res.end();
-    });
-    
-   
-
-    router.route('/main').post(userCtrl.register_nickname);
+    router.route('/')
+    .get(weatherApi.getRealTimeFineDust, weatherApi.getWeekFineDust);
+    router.route('/main')
+    .post(userCtrl.register_nickname);
     router.route('/setting/nickname/:nickname')
     .get(userCtrl.show_nickname);
     router.route('/setting/nickname/:prevName/:newName')
@@ -46,5 +40,6 @@ module.exports=(router)=>{
     .get(alarmCtrl.show_nickname())
     
 */
+    
     return router;
 }
