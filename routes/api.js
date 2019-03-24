@@ -2,12 +2,14 @@
 const userCtrl = require('../controllers/UserCtrl');
 const boardCtrl = require('../controllers/BoardCtrl');
 const alarmCtrl = require('../controllers/AlarmCtrl');
-const weatherCtrl = require('../controllers/WeatherDataCtrl');
+const weatherCtrl = require('../controllers/WeatherCtrl');
 const weatherApi = require('./weatherApi');
 module.exports=(router)=>{
     
-    router.route('/')
-    .get(weatherApi.getRealTimeFineDust, weatherApi.getWeekFineDust);
+    router.route('/currentDustInfo')
+    .get(weatherApi.getRealTimeFineDust);
+    router.route('/weekDustInfo')
+    .get(weatherApi.getWeekFineDust);
     router.route('/main')
     .post(userCtrl.register_nickname);
     router.route('/setting/nickname/:nickname')
