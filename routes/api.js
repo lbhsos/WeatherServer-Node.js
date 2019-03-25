@@ -16,6 +16,18 @@ module.exports=(router)=>{
     .get(userCtrl.show_nickname);
     router.route('/setting/nickname/:prevName/:newName')
     .put(userCtrl.edit_nickname);
+
+    //board
+    router.route('/board/list')
+    .get(boardCtrl.show_board_all);
+    router.route('/board/:nickname')
+    .post(boardCtrl.write_board);
+    router.route('/board/:id')
+    .delete(boardCtrl.remove_board);
+    router.route('/board/like/:id')
+    .put(boardCtrl.like_board);
+    router.route('/board/dislike/id')
+    .put(boardCtrl.dislike_board);
 /*    
     //main
     router.route('/main/realtime')
@@ -25,14 +37,6 @@ module.exports=(router)=>{
     router.route('/main/location')
     .put(userGtrl.edit_locInfo());
 
-
-    //board
-    router.route('/board/list')
-    .get(boardCtrl.show_board_all());
-    router.route('/board/like')
-    .put(boardCtrl.like());
-    router.route('/board/dislike')
-    .put(boardCtrl.dislike());
 
     //setting
     router.route('/setting/notification')

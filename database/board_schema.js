@@ -5,10 +5,11 @@ Schema.createSchema = function(mongoose){
         id: Number,
         nickname: String,
         content: String,
-        timestamp:  { type: Date, default: Date.now},
+        timestamp:  { type: Date},
         like: Number,
         dislike: Number,
-        user_emo: String
+        expireAt: {type: Date}
+       // user_emo: String
     })
     
     
