@@ -77,7 +77,7 @@ exports.show_board_all = (db)=>{
                     resolve(result);
                 }
             }
-        });
+        }).sort({timestamp:-1});
 
     });
 }
