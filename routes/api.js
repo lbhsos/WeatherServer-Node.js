@@ -22,9 +22,9 @@ module.exports=(router)=>{
 
     router.route('/board/list')
     .get(boardCtrl.show_board_all);
-    router.route('/board/:nickname')
+    router.route('/board/write')
     .post(boardCtrl.write_board);
-    router.route('/board/:id')
+    router.route('/board/removal/:id')
     .delete(boardCtrl.remove_board);
     router.route('/board/like/:id')
     .put(boardCtrl.like_board);

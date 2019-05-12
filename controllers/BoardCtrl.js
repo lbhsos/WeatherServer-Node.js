@@ -3,11 +3,13 @@ const res_msg = require('../error.json');
 
 
 var write_board = async(req, res, next)=>{
-    let result = '';
+
     try{
         const board_data = {
-            nickname: req.params.nickname || req.query.nickname,
-            content : req.body.content
+            uid: req.body.uid,
+            type:req.body.type,
+            nickname: req.body.nickname,
+            content : req.body.content,
         }
         var db = req.app.get('database');
         result = await boardModel.write_board(db, board_data);
@@ -46,6 +48,7 @@ var like_board = async(req, res, next)=>{
     }
     return res.status(200).json(res_msg[1200]);
 }
+
 var dislike_board = async(req, res, next)=>{
     let result = '';
     try{

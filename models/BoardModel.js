@@ -32,7 +32,7 @@ exports.write_board = (db, board_data)=>{
     var database = db;
 
     return new Promise((resolve, reject)=>{
-        database.userModel.findOne({"nickname":board_data.nickname}, function(err, result){
+        database.userModel.findOne({"uid":board_data.uid,"type":board_data.type}, function(err, result){
           if(err){
               reject(err);
           }else{
