@@ -1,15 +1,14 @@
 const userModel = require('../models/UserModel');
 const res_msg = require('../error.json');
 
-var register_nickname = async(req, res, next)=> {
-    let result = '';
-    
+var register_user = async(req, res, next)=> {
     try{
-        //TODO location info NOT YET
-        //userdata의 중복데이터 확인하기 
-        //console.log("1");
         const user_data = {
+            type: req.body.type,
             nickname: req.body.nickname,
+            uid: req.body.uid,
+            lat: req.body.lat,
+            lng: req.body.lng,
         }
         var db = req.app.get('database');
         result = await userModel.register_nickname(db,user_data);
@@ -20,11 +19,28 @@ var register_nickname = async(req, res, next)=> {
     return res.status(200).json(res_msg[1200]);
     
 };
+var login_user = async(req, res, next)=> {
+    let result = '';
+    try{
+        const user_data = {
+            type: req.body.type,
+            uid: req.body.uid,
+        }
+        var db = req.app.get('database');
+        result = await userModel.register_nickname(db,user_data);
+    }catch(error){
+        console.log(error);
+        res.status(500).json({error: 'server error'});
+    }
+    return res.status(200).json(res_msg[1200]);
+};
 
 var show_nickname = async(req, res, next)=>{
     let result = '';
     try{
         const user_data={
+            type: req.body.type,
+            uid: req.body.uid,
             nickname: req.params.nickname || req.query.nickname
         }
         var db = req.app.get('database');
@@ -48,6 +64,8 @@ var edit_nickname = async(req, res, next)=>{
 
         //newName이 중복하지 않는지 확인 
         const user_data={
+            type: req.body.type,
+            uid: req.body.uid,
             prevName: prevName,
             newName: newName
         }
@@ -61,7 +79,8 @@ var edit_nickname = async(req, res, next)=>{
     return res.status(200).json(res_msg[1200]);
 };
 
-module.exports.register_nickname = register_nickname;
+module.exports.login_user = login_user;
+module.exports.register_user = register_user;
 module.exports.show_nickname = show_nickname;
 module.exports.edit_nickname = edit_nickname;
 /*
