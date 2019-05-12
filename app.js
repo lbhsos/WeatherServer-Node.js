@@ -21,7 +21,7 @@ console.log('config.server_port : %d', config.server_port);
 app.set('port', config.server_port);
 app.listen(app.get('port'), () => {
 
-  console.info(`[YaTa] Application Listening on Port ${'port'}`);
+  console.info(`Application Listening on Port ${'port'}`);
   });
 
 

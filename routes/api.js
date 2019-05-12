@@ -2,14 +2,17 @@
 const userCtrl = require('../controllers/UserCtrl');
 const boardCtrl = require('../controllers/BoardCtrl');
 const alarmCtrl = require('../controllers/AlarmCtrl');
+//const weatherCtrl = require('../controllers/WeatherCtrl');
 const weatherCtrl = require('../controllers/WeatherCtrl');
-const weatherApi = require('./weatherApi');
+var result;
+
 module.exports=(router)=>{
     
     router.route('/currentDustInfo')
-    .get(weatherApi.getRealTimeFineDust);
-    router.route('/weekDustInfo')
-    .get(weatherApi.getWeekFineDust);
+    .get(weatherCtrl.getDate,weatherCtrl.getRealTimeFineDust, weatherCtrl.getCurrentData, weatherCtrl.getTodayWeather, 
+        weatherCtrl.getTomorrowWeather, weatherCtrl.getTodayWeather, weatherCtrl.getHeatLife,
+        weatherCtrl.getUltraVLife,weatherCtrl.getMiddleLandWeather, 
+        weatherCtrl.getMiddleTemperature, weatherCtrl.show_best_board, weatherCtrl.combineAllData);
     router.route('/main')
     .post(userCtrl.register_nickname);
     router.route('/setting/nickname/:nickname')
@@ -17,7 +20,6 @@ module.exports=(router)=>{
     router.route('/setting/nickname/:prevName/:newName')
     .put(userCtrl.edit_nickname);
 
-    //board
     router.route('/board/list')
     .get(boardCtrl.show_board_all);
     router.route('/board/:nickname')

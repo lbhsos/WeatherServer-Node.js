@@ -15,6 +15,7 @@ function getCurrentDate(){
     var milliseconds = date.getMilliseconds();
     return new Date(Date.UTC(year, month, today, hours, minutes, seconds, milliseconds));
 }
+
 function getExpireDate(){
     var date = new Date();
     var year = date.getFullYear();
@@ -78,7 +79,6 @@ exports.show_board_all = (db)=>{
                 }
             }
         }).sort({timestamp:-1});
-
     });
 }
 

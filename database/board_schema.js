@@ -11,8 +11,7 @@ Schema.createSchema = function(mongoose){
         expireAt: {type: Date}
        // user_emo: String
     })
-    
-    
+
     return BoardSchema;    
 }
 

@@ -30,6 +30,8 @@ var show_board_all = async(req, res, next)=>{
     return res.status(200).json(result);
 }
 
+
+
 var like_board = async(req, res, next)=>{
     let result = '';
     try{

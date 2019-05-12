@@ -3,11 +3,11 @@ const res_msg = require('../error.json');
 
 var register_nickname = async(req, res, next)=> {
     let result = '';
-    console.log("2");
+    
     try{
         //TODO location info NOT YET
         //userdata의 중복데이터 확인하기 
-        console.log("1");
+        //console.log("1");
         const user_data = {
             nickname: req.body.nickname,
         }

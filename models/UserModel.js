@@ -16,7 +16,6 @@ exports.register_nickname = (db,user_data)=>{
                     reject({error: 'server error'});
                 }else{
                     resolve(null);
-
                 }
             }
         });
