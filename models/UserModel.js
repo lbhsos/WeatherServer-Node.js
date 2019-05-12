@@ -1,18 +1,19 @@
 'use strict';
-
+const res_msg = require('../error.json');
 /* model definition */
 
 exports.register_user = (db,user_data)=>{ 
-    var error_message = require('../error.json');    
+   
     console.log("새로운 인스턴스 객체 "); 
     var database = db;
     return new Promise((resolve, reject)=>{
         database.userModel.find({"nickname": user_data.nickname}, function(err, result){
             if(err){
+                console.log('hello');
                 reject(err);
             }else{
                 if(result.length>0){
-                    reject({error: 'alreay exist nickname'});
+                    reject(res_msg[1301]);
                 }else{
                     resolve(null);
                 }
@@ -29,17 +30,17 @@ exports.register_user = (db,user_data)=>{
                 lng: user_data.lng});
             newUser.save(function(err){
                 if(err){
+                    console.log('hi');
                     reject(err);
                 }else{
-                    resolve(newUser.nickname);
+                    resolve(null);
                 }
             });
         });
     });
 };
 
-exports.login_user = (db,user_data)=>{ 
-    var error_message = require('../error.json');    
+exports.login_user = (db,user_data)=>{    
     console.log("새로운 인스턴스 객체 "); 
     var database = db;
     return new Promise((resolve, reject)=>{
@@ -48,9 +49,9 @@ exports.login_user = (db,user_data)=>{
                 reject(err);
             }else{
                 if(result.length<0){
-                    reject({error: 'no user data, please register'});
+                    reject(res_msg[1300]);
                 }else{
-                    resolve(result[0]._doc);
+                    resolve(result[0]);
                 }
             }
         });
@@ -65,7 +66,7 @@ exports.show_user = (db,user_data)=>{
                 reject(err);
             }else{
                 if(result.length<=0){
-                    reject({error: 'server error'});
+                    reject(res_msg[1300]);
                 }else{
                     resolve(result[0]._doc);
                 }
@@ -79,7 +80,7 @@ exports.edit_nickname = (db,user_data)=>{
     return new Promise((resolve, reject)=>{
         database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
             if(!result){
-                reject({error: 'we couldn\'t find the document'});
+                reject(res_msg[1300]);
             }
             else{
                 database.userModel.update({'nickname': user_data.prevName}, {$set:{'nickname': user_data.newName}}).exec();
@@ -89,12 +90,12 @@ exports.edit_nickname = (db,user_data)=>{
     });
 };
 
-exports.edit_ = (db,user_data)=>{ 
+exports.edit_location = (db,user_data)=>{ 
     var database = db;
     return new Promise((resolve, reject)=>{
         database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
             if(!result){
-                reject({error: 'we couldn\'t find the document'});
+                reject(res_msg[1300]);
             }
             else{
                 database.userModel.update({$set:{'lat': user_data.lat, 'lng': user_data.lng}}).exec();

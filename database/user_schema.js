@@ -2,7 +2,11 @@ var Schema = { };
 
 Schema.createSchema = function(mongoose){
     var UserSchema = mongoose.Schema({
-        nickname: {type: String, index:'hashed'},
+        nickname: String,
+        uid: String,
+        type:String,
+        lat:String,
+        lng: String,
         location:{
             'type': {type: String, 'default':"Point"},
             coordinates:[{type:"Number"}]

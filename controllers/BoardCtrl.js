@@ -3,7 +3,6 @@ const res_msg = require('../error.json');
 
 
 var write_board = async(req, res, next)=>{
-
     try{
         const board_data = {
             uid: req.body.uid,
@@ -15,7 +14,7 @@ var write_board = async(req, res, next)=>{
         result = await boardModel.write_board(db, board_data);
     }catch(error){
         console.log(error);
-        res.status(500).json({error: 'server error'});
+        res.status(500).json(res_msg[1500]);
     }
     return res.status(200).json(res_msg[1200]);
 }
@@ -27,7 +26,7 @@ var show_board_all = async(req, res, next)=>{
         result = await boardModel.show_board_all(db);
     }catch(error){
         console.log(error);
-        res.status(500).json({error:'server error'});
+        res.status(500).json(res_msg[1500]);
     }
     return res.status(200).json(result);
 }
@@ -44,7 +43,7 @@ var like_board = async(req, res, next)=>{
         result = await boardModel.like_board(db,board_data);
     }catch(error){
         console.log(error);
-        res.status(500).json({error: 'server error'});
+        res.status(500).json(res_msg[1500]);
     }
     return res.status(200).json(res_msg[1200]);
 }
@@ -56,10 +55,10 @@ var dislike_board = async(req, res, next)=>{
         const board_data={
             _id: req.params.id || req.query.id
         }
-        result = await boardModel.like_board(db,board_data);
+        result = await boardModel.dislike_board(db,board_data);
     }catch(error){
         console.log(error);
-        res.status(500).json({error: 'server error'});
+        res.status(500).json(res_msg[1500]);
     }
     return res.status(200).json(res_msg[1200]);
 }
@@ -74,7 +73,7 @@ var remove_board = async(req, res, next)=>{
         result = await boardModel.remove_board(db, board_data);
     }catch(error){
         console.log(error);
-        res.status(500).json({error: 'server error'});
+        res.status(500).json(res_msg[1500]);
     }
     return res.status(200).json(res_msg[1200]);
 }

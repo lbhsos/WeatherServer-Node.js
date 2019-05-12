@@ -1,5 +1,6 @@
 'use strict';
 var moment = require('moment');
+const res_msg = require('../error.json');
 require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
 var date = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -37,9 +38,9 @@ exports.write_board = (db, board_data)=>{
               reject(err);
           }else{
               if(result.length<=0){
-                  reject({error: 'cannot find nickname'});
+                  reject(res_msg[1300]);
               }else{
-                  resolve();
+                  resolve(null);
               }
           }
         });
