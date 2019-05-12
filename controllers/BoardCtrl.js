@@ -13,8 +13,8 @@ var write_board = async(req, res, next)=>{
         var db = req.app.get('database');
         result = await boardModel.write_board(db, board_data);
     }catch(error){
-        console.log(error);
-        res.status(500).json(res_msg[1500]);
+        //console.log(error);
+        res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
 }
@@ -25,8 +25,8 @@ var show_board_all = async(req, res, next)=>{
         var db = req.app.get('database');
         result = await boardModel.show_board_all(db);
     }catch(error){
-        console.log(error);
-        res.status(500).json(res_msg[1500]);
+        //console.log(error);
+        res.status(500).json(error);
     }
     return res.status(200).json(result);
 }
@@ -42,8 +42,8 @@ var like_board = async(req, res, next)=>{
         }
         result = await boardModel.like_board(db,board_data);
     }catch(error){
-        console.log(error);
-        res.status(500).json(res_msg[1500]);
+        //console.log(error);
+        res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
 }
@@ -57,8 +57,8 @@ var dislike_board = async(req, res, next)=>{
         }
         result = await boardModel.dislike_board(db,board_data);
     }catch(error){
-        console.log(error);
-        res.status(500).json(res_msg[1500]);
+        //console.log(error);
+        res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
 }
@@ -72,8 +72,8 @@ var remove_board = async(req, res, next)=>{
         }
         result = await boardModel.remove_board(db, board_data);
     }catch(error){
-        console.log(error);
-        res.status(500).json(res_msg[1500]);
+        //console.log(error);
+        res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
 }

@@ -10,7 +10,7 @@ exports.register_user = (db,user_data)=>{
         database.userModel.find({"nickname": user_data.nickname}, function(err, result){
             if(err){
                 console.log('hello');
-                reject(err);
+                reject(res_msg[1500]);
             }else{
                 if(result.length>0){
                     reject(res_msg[1301]);
@@ -28,10 +28,10 @@ exports.register_user = (db,user_data)=>{
                 nickname: user_data.nickname, 
                 lat: user_data.lat, 
                 lng: user_data.lng});
-            newUser.save(function(err){
+                newUser.save(function(err){
                 if(err){
                     console.log('hi');
-                    reject(err);
+                    reject(res_msg[1500]);
                 }else{
                     resolve(null);
                 }
@@ -46,9 +46,9 @@ exports.login_user = (db,user_data)=>{
     return new Promise((resolve, reject)=>{
         database.userModel.find({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
             if(err){
-                reject(err);
+                reject(res_msg[1500]);
             }else{
-                if(result.length<0){
+                if(result.length<=0){
                     reject(res_msg[1300]);
                 }else{
                     resolve(result[0]);
@@ -63,7 +63,7 @@ exports.show_user = (db,user_data)=>{
     return new Promise((resolve, reject)=>{
         database.userModel.find({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
             if(err){
-                reject(err);
+                reject(res_msg[1500]);
             }else{
                 if(result.length<=0){
                     reject(res_msg[1300]);

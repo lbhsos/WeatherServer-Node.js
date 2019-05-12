@@ -19,7 +19,7 @@ module.exports=(router)=>{
     .post(userCtrl.login_user);
     // router.route('/main/comment')
     // .put(userCtrl.write_comment);
-    
+
     router.route('/setting/location')
     .put(userCtrl.edit_location);
     router.route('/setting/user')
@@ -34,7 +34,7 @@ module.exports=(router)=>{
     .delete(boardCtrl.remove_board);
     router.route('/board/like/:id')
     .put(boardCtrl.like_board);
-    router.route('/board/dislike/id')
+    router.route('/board/dislike/:id')
     .put(boardCtrl.dislike_board);
 /*    
     //main

@@ -33,11 +33,11 @@ exports.write_board = (db, board_data)=>{
     var database = db;
 
     return new Promise((resolve, reject)=>{
-        database.userModel.findOne({"uid":board_data.uid,"type":board_data.type}, function(err, result){
+        database.userModel.findOne({"uid":board_data.uid,"type":board_data.type,"nickname":board_data.nickname}, function(err, result){
           if(err){
-              reject(err);
+              reject(res_msg[1500]);
           }else{
-              if(result.length<=0){
+              if(result==null){
                   reject(res_msg[1300]);
               }else{
                   resolve(null);
@@ -53,7 +53,7 @@ exports.write_board = (db, board_data)=>{
             var newBoard = new database.boardModel({nickname: board_data.nickname, content: board_data.content, timestamp: newDate, like: 0, dislike: 0, expireAt: expireDate});
             newBoard.save(function(err){
                 if(err){
-                    reject(err);
+                    reject(res_msg[1500]);
                 }else{
                     resolve(newBoard);
                 }
@@ -71,10 +71,10 @@ exports.show_board_all = (db)=>{
         var curDate = getCurrentDate();
         database.boardModel.find({"expireAt":{"$gte": curDate}}, function(err, result){
             if(err){
-                reject(err);
+                reject(res_msg[1500]);
             }else{
-                if(result<=0){
-                        resolve({message: "there is no data"});
+                if(result == null){
+                        reject(res_msg[1300]);
                 }else{
                     resolve(result);
                 }
@@ -87,15 +87,15 @@ exports.like_board = (db, board_data)=>{
     var database = db;
     return new Promise((resolve, reject)=>{
 
-        database.boardModel.find({"_id":board_data._id}, function(err, result){
+        database.boardModel.findOne({"_id":board_data._id}, function(err, result){
             if(err){
-                reject(err);
+                reject(res_msg[1500]);
             }else{
-                if(result<=0){
-                    reject({message: "there is no data"});
+                if(result == null){
+                    reject(res_msg[1300]);
                 }else{
                     //console.log(result);
-                    var count = result[0]._doc.like;
+                    var count = result._doc.like;
                     database.boardModel.update({"_id":board_data._id}, {$set: {'like': count+1}}).exec();
                     resolve(null);
                 }
@@ -108,15 +108,15 @@ exports.dislike_board = (db, board_data)=>{
     var database = db;
     return new Promise((resolve, reject)=>{
 
-        database.boardModel.find({"_id":board_data._id}, function(err, result){
+        database.boardModel.findOne({"_id":board_data._id}, function(err, result){
             if(err){
-                reject(err);
+                reject(res_msg[1500]);
             }else{
-                if(result<=0){
-                        reject({message: "there is no data"});
+                if(result==null){
+                        reject(res_msg[1300]);
                 }else{
                     //console.log(result);
-                    var count = result[0]._doc.dislike;
+                    var count = result._doc.dislike;
                   database.boardModel.update({"_id":board_data._id}, {$set: {'dislike': count+1}}).exec();
                   resolve(null);
                 }
@@ -129,12 +129,12 @@ exports.remove_board = (db,board_data)=>{
     var database = db;
     return new Promise((resolve, reject)=>{
 
-        database.boardModel.find({"_id":board_data._id}, function(err, result){
+        database.boardModel.findOne({"_id":board_data._id}, function(err, result){
             if(err){
-                reject(err);
+                reject(res_msg[1500]);
             }else{
-                if(result<=0){
-                        reject({message: "there is no data"});
+                if(result==null){
+                        reject(res_msg[1300]);
                 }else{
                     //console.log(result);
                   database.boardModel.remove({"_id":board_data._id}).exec();

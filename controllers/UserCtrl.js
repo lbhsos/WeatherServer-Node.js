@@ -13,14 +13,12 @@ var register_user = async(req, res, next)=> {
         var db = req.app.get('database');
         result = await userModel.register_user(db,user_data);
     }catch(error){
-        console.log(error);
-        res.status(500).json(res_msg[1500]);
+        res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
     
 };
 var login_user = async(req, res, next)=> {
-    let result = '';
     try{
         const user_data = {
             type: req.body.type,
@@ -29,8 +27,9 @@ var login_user = async(req, res, next)=> {
         var db = req.app.get('database');
         result = await userModel.login_user(db,user_data);
     }catch(error){
-        console.log(error);
-        res.status(500).json(res_msg[1500]);
+        //console.log(error);
+        res.status(500).json(error);
+       
     }
     return res.status(200).json(res_msg[1200]);
 };
@@ -46,7 +45,7 @@ var show_user = async(req, res, next)=>{
         result = await userModel.show_user(db,user_data);
     }catch(error){
         
-        res.status(500).json(res_msg[1500]);
+        res.status(500).json(error);
     }
     return res.status(200).json(result);
 
@@ -66,7 +65,7 @@ var edit_nickname = async(req, res, next)=>{
         result = await userModel.edit_nickname(db,user_data);
     }catch(error){
            
-        res.status(500).json(res_msg[1500]);
+        res.status(500).json(error);
     }
     //success
     return res.status(200).json(res_msg[1200]);
@@ -85,7 +84,7 @@ var edit_location = async(req, res, next)=>{
         result = await userModel.edit_location(db,user_data);
     }catch(error){
            
-        res.status(500).json(res_msg[1500]);
+        res.status(500).json(error);
     }
     //success
     return res.status(200).json(res_msg[1200]);
