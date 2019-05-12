@@ -8,17 +8,23 @@ var result;
 
 module.exports=(router)=>{
     
-    router.route('/currentDustInfo')
+    router.route('/main')
     .get(weatherCtrl.getDate,weatherCtrl.getRealTimeFineDust, weatherCtrl.getCurrentData, weatherCtrl.getTodayWeather, 
         weatherCtrl.getTomorrowWeather, weatherCtrl.getTodayWeather, weatherCtrl.getHeatLife,
         weatherCtrl.getUltraVLife,weatherCtrl.getMiddleLandWeather, 
         weatherCtrl.getMiddleTemperature, weatherCtrl.show_best_board, weatherCtrl.combineAllData);
-    router.route('/main')
-    .post(userCtrl.register_nickname);
-    router.route('/setting/nickname/:nickname')
-    .get(userCtrl.show_nickname);
-    router.route('/setting/nickname/:prevName/:newName')
-    .put(userCtrl.edit_nickname);
+    router.route('/main/register')
+    .post(userCtrl.register_user);
+    router.route('/main/login')
+    .post(userCtrl.login_user);
+    // router.route('/main/comment')
+    // .put(userCtrl.write_comment);
+    
+    router.route('/setting/location')
+    .put(userCtrl.edit_location);
+    router.route('/setting/user')
+    .put(userCtrl.edit_nickname)
+    .get(userCtrl.show_user);
 
     router.route('/board/list')
     .get(boardCtrl.show_board_all);
