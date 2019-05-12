@@ -1,6 +1,40 @@
 'use strict';
 const res_msg = require('../error.json');
 /* model definition */
+var request = require('request');
+var config = require('../config');
+var map_key = config.map_key;
+
+exports.getLocationInfo = (user_data)=>{
+    
+    var url = 'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json';
+    var queryParams = '?'+encodeURIComponent('x')+'='+encodeURIComponent(user_data.lng);
+    queryParams += '&'+encodeURIComponent('y')+'='+encodeURIComponent(user_data.lat);
+
+    var header = { 
+        Authorization: "KakaoAK " + map_key
+    };
+
+    console.log(url + queryParams);
+
+    return new Promise((resolve, reject)=>{
+        request({
+            headers : header,
+            url: url + queryParams,
+            method: 'GET',
+        }, function(error, response, body){
+            if (!error && response.statusCode == 200) {
+                var list = JSON.parse(body).documents;
+                var firstItem = list[0];
+
+                resolve(firstItem.region_2depth_name);
+            } else {
+                console.log('error : ' + error);
+                reject(res_msg[1500]);
+            }
+        });
+    });
+};
 
 exports.register_user = (db,user_data)=>{ 
    
@@ -27,7 +61,8 @@ exports.register_user = (db,user_data)=>{
                 uid: user_data.uid,
                 nickname: user_data.nickname, 
                 lat: user_data.lat, 
-                lng: user_data.lng});
+                lng: user_data.lng,
+                region: user_data.region});
                 newUser.save(function(err){
                 if(err){
                     console.log('hi');
@@ -98,9 +133,10 @@ exports.edit_location = (db,user_data)=>{
                 reject(res_msg[1300]);
             }
             else{
-                database.userModel.update({$set:{'lat': user_data.lat, 'lng': user_data.lng}}).exec();
+                database.userModel.update({$set:{'lat': user_data.lat, 'lng': user_data.lng,"region":user_data.region}}).exec();
                 resolve(null);
             }
         })
     });
 };
+

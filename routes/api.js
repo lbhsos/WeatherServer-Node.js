@@ -14,14 +14,14 @@ module.exports=(router)=>{
         weatherCtrl.getUltraVLife,weatherCtrl.getMiddleLandWeather, 
         weatherCtrl.getMiddleTemperature, weatherCtrl.show_best_board, weatherCtrl.combineAllData);
     router.route('/main/register')
-    .post(userCtrl.register_user);
+    .post(userCtrl.get_region_code,userCtrl.register_user);
     router.route('/main/login')
     .post(userCtrl.login_user);
     // router.route('/main/comment')
     // .put(userCtrl.write_comment);
 
     router.route('/setting/location')
-    .put(userCtrl.edit_location);
+    .put(userCtrl.get_region_code, userCtrl.edit_location);
     router.route('/setting/user')
     .put(userCtrl.edit_nickname)
     .get(userCtrl.show_user);

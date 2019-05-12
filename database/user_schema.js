@@ -12,6 +12,7 @@ Schema.createSchema = function(mongoose){
             coordinates:[{type:"Number"}]
             
         },
+        region: String,
         //published_date: { type: Date, default: Date.now}
     });
     console.log("userSchema 정의함");

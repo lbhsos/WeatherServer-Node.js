@@ -1,5 +1,6 @@
 const userModel = require('../models/UserModel');
 const res_msg = require('../error.json');
+var region=null;
 
 var register_user = async(req, res, next)=> {
     try{
@@ -9,6 +10,7 @@ var register_user = async(req, res, next)=> {
             uid: req.body.uid,
             lat: req.body.lat,
             lng: req.body.lng,
+            region: region,
         }
         var db = req.app.get('database');
         result = await userModel.register_user(db,user_data);
@@ -79,16 +81,35 @@ var edit_location = async(req, res, next)=>{
             uid: req.body.uid,
             lat: req.body.lat,
             lng: req.body.lng,
+            region: region,
         }
         var db = req.app.get('database');
         result = await userModel.edit_location(db,user_data);
-    }catch(error){
-           
+    }catch(error){     
         res.status(500).json(error);
     }
     //success
     return res.status(200).json(res_msg[1200]);
 };
+
+var get_region_code=async(req, res,next)=>{
+    try{
+        const user_data = {
+            type: req.body.type,
+            uid: req.body.uid,
+            lat: req.body.lat,
+            lng: req.body.lng,
+        }
+        result = await userModel.getLocationInfo(user_data);
+        region = result;
+        next();
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({error: 'hello'});
+    }    
+};
+
+module.exports.get_region_code = get_region_code;
 module.exports.login_user = login_user;
 module.exports.register_user = register_user;
 module.exports.show_user = show_user;
