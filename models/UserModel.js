@@ -88,3 +88,18 @@ exports.edit_nickname = (db,user_data)=>{
         })
     });
 };
+
+exports.edit_ = (db,user_data)=>{ 
+    var database = db;
+    return new Promise((resolve, reject)=>{
+        database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
+            if(!result){
+                reject({error: 'we couldn\'t find the document'});
+            }
+            else{
+                database.userModel.update({$set:{'lat': user_data.lat, 'lng': user_data.lng}}).exec();
+                resolve(null);
+            }
+        })
+    });
+};
