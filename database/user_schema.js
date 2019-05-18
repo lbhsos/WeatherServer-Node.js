@@ -7,12 +7,10 @@ Schema.createSchema = function(mongoose){
         type:String,
         lat:String,
         lng: String,
-        location:{
-            'type': {type: String, 'default':"Point"},
-            coordinates:[{type:"Number"}]
-            
-        },
-        region: String,
+        region: {
+            cityName: String,
+            sidoName: String
+        }
         //published_date: { type: Date, default: Date.now}
     });
     console.log("userSchema 정의함");

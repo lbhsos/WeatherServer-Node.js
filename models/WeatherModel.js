@@ -5,10 +5,11 @@ var service_key = config.service_key;
 
 var util = require('util');
 
+
 exports.getRealTimeFineDust = (weather_data)=>{
     
     var url = 'http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnMesureSidoLIst';
-    var queryParams = '?'+encodeURIComponent('sidoName')+'='+encodeURIComponent('서울');
+    var queryParams = '?'+encodeURIComponent('sidoName')+'='+ encodeURIComponent(weather_data.sidoName);
     queryParams += '&'+encodeURIComponent('searchCondition')+'='+encodeURIComponent('HOUR');
     queryParams += '&'+encodeURIComponent('pageNo')+'='+encodeURIComponent('1');
     queryParams += '&'+encodeURIComponent('numOfRows')+'='+encodeURIComponent('100');
@@ -23,25 +24,27 @@ exports.getRealTimeFineDust = (weather_data)=>{
         if (!error && response.statusCode == 200) {
             var list = JSON.parse(body).list;
             for(var item in list){
-              if(list[item].cityName==weather_data.cityName){
 
+              if(list[item].cityName==weather_data.cityName){
+                
                 var resItem = {
-                    cityName: list[item].cityName,
+                    //cityName: list[item].cityName,
                     coValue: list[item].coValue,
                     dataTime: list[item].dataTime,
                     no2Value: list[item].no2Value,
                     o3Value: list[item].o3Value,
                     pm10Value: list[item].pm10Value,
                     pm25Value: list[item].pm25Value,
-                    sidoName: list[item].sidoName,
+                    //sidoName: list[item].sidoName,
                     so2Value: list[item].so2Value
                 }
+    
               }
             }
             
             resolve(resItem);
           } else {
-            console.log('error');
+            console.log(error);
             reject({error: 'realtime fineDust error'});
           }
     });
@@ -76,11 +79,14 @@ exports.getCurrentData = (weather_data)=>{
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + service_key; /* Service Key*/
     queryParams += '&' + encodeURIComponent('base_date') + '=' + day_str; /* ‘15년 12월 1일 발표 */
     queryParams += '&' + encodeURIComponent('base_time') + '=' + time_str; /* 06시30분 발표(30분 단위) - 매시각 45분 이후 호출 */
-    queryParams += '&' + encodeURIComponent('nx') + '=' + weather_data.lng; /* 예보지점 X 좌표값 */
-    queryParams += '&' + encodeURIComponent('ny') + '=' + weather_data.lat; /* 예보지점 Y 좌표값 */
+    queryParams += '&' + encodeURIComponent('nx') + '=' + weather_data.x; /* 예보지점 X 좌표값 */
+    queryParams += '&' + encodeURIComponent('ny') + '=' + weather_data.y; /* 예보지점 Y 좌표값 */
     queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('200'); /* 한 페이지 결과 수 */
     queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /* 페이지 번호 */
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml(기본값), json*/
+
+    //console.log(weather_data.x);
+    //console.log(weather_data.y);
 
     return new Promise((resolve, reject)=>{
         request({
@@ -89,6 +95,7 @@ exports.getCurrentData = (weather_data)=>{
         }, function (error, response, body) {
         var tempValue, humidValue;
         if (!error && response.statusCode == 200) {
+            // console.log(body);
             var list = JSON.parse(body).response.body.items.item;
             
             for(var item in list){
@@ -131,8 +138,8 @@ exports.getTodayWeather = (weather_data, flag)=>{
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + service_key; /* Service Key*/
     queryParams += '&' + encodeURIComponent('base_date') + '=' + weather_data.today; /* ‘15년 12월 1일발표 */
     queryParams += '&' + encodeURIComponent('base_time') + '=' + encodeURIComponent('0200'); /* 05시 발표 * 기술문서 참조 */
-    queryParams += '&' + encodeURIComponent('nx') + '=' + weather_data.lng; /* 예보지점의 X 좌표값 */
-    queryParams += '&' + encodeURIComponent('ny') + '=' + weather_data.lat; /* 예보지점의 Y 좌표값 */
+    queryParams += '&' + encodeURIComponent('nx') + '=' + weather_data.x; /* 예보지점의 X 좌표값 */
+    queryParams += '&' + encodeURIComponent('ny') + '=' + weather_data.y; /* 예보지점의 Y 좌표값 */
     queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('200'); /* 한 페이지 결과 수 */
     queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /* 페이지 번호 */
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml(기본값), json */
@@ -210,10 +217,10 @@ exports.getHeatLife = (weather_data)=>{
     //queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('-'); /* 공공데이터포털에서 받은 인증키 */
     queryParams += '&' + encodeURIComponent('areaNo') + '=' + weather_data.areaNo; /* 서울지점 */
     queryParams += '&' + encodeURIComponent('requestCode') + '=' + encodeURIComponent('A20'); /* 일반인 */
-    queryParams += '&' + encodeURIComponent('time') + '=' + encodeURIComponent('2019050318'); /* 2017년 6월 8일 6시 발표 */
+    queryParams += '&' + encodeURIComponent('time') + '=' + today_str; /* 2017년 6월 8일 6시 발표 */
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml , json 선택 */
     
-    console.log(url + queryParams);
+    //console.log(url + queryParams);
 
     return new Promise((resolve, reject)=>{
         request({
@@ -263,14 +270,11 @@ exports.getUltraVLife = (weather_data)=>{
     
     var url = 'http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/getUltrvLifeList';
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+ service_key; /* Service Key*/
-    //queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('-'); /* 공공데이터포털에서 받은 인증키 */
     queryParams += '&' + encodeURIComponent('areaNo') + '=' +weather_data.areaNo; /* 서울지점 */
     queryParams += '&' + encodeURIComponent('requestCode') + '=' + encodeURIComponent('A20'); /* 일반인 */
     queryParams += '&' + encodeURIComponent('time') + '=' + today_str; /* 2017년6월8일6시 */
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml, json 선택(미입력시 xml) */
 
-    //console.log('helloooooo');
-    
     return new Promise((resolve, reject)=>{
         request({
             url: url + queryParams,
@@ -305,7 +309,7 @@ exports.getUltraVLife = (weather_data)=>{
 
 exports.getMiddleLandWeather = (weather_data)=>{
     var request = require('request');
-    var base_str = weather_data.yesterday+"0600";
+    var base_str = weather_data.today+"0600";
     var url = 'http://newsky2.kma.go.kr/service/MiddleFrcstInfoService/getMiddleLandWeather';
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+service_key; /* Service Key*/
     //queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('-'); /* 공공데이터포털에서 받은 인증키 */
@@ -314,7 +318,6 @@ exports.getMiddleLandWeather = (weather_data)=>{
     queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('1'); 
     queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); 
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml, json 선택(미입력시 xml) */
-
     return new Promise((resolve, reject)=>{
         request({
             url: url + queryParams,
@@ -322,7 +325,6 @@ exports.getMiddleLandWeather = (weather_data)=>{
         }, function (error, response, body) {
          
           if (!error && response.statusCode == 200) {
-            //console.log(body);
             var list = JSON.parse(body).response.body.items.item;
             var resItem = list;
 
@@ -339,16 +341,16 @@ exports.getMiddleLandWeather = (weather_data)=>{
 
 exports.getMiddleTemperature= (weather_data)=>{
     var request = require('request');
-    var base_str = weather_data.yesterday+"0600";
+    var base_str = weather_data.today+"0600";
+    //console.log(weather_data.tmFc);
     var url = 'http://newsky2.kma.go.kr/service/MiddleFrcstInfoService/getMiddleTemperature';
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+service_key; /* Service Key*/
-    //queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('-'); /* 공공데이터포털에서 받은 인증키 */
-    queryParams += '&' + encodeURIComponent('regId') + '=' +encodeURIComponent('11B10101'); /* 서울지점 */
+    queryParams += '&' + encodeURIComponent('regId') + '=' +encodeURIComponent(weather_data.tmFc); /* 서울지점 */
     queryParams += '&' + encodeURIComponent('tmFc') + '=' + base_str; /* 2017년6월8일6시 */
     queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); 
     queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); 
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml, json 선택(미입력시 xml) */
-
+    console.log(url + queryParams);
     return new Promise((resolve, reject)=>{
         request({
             url: url + queryParams,
@@ -356,7 +358,7 @@ exports.getMiddleTemperature= (weather_data)=>{
         }, function (error, response, body) {
          
           if (!error && response.statusCode == 200) {
-            //console.log(body);
+            // console.log(body);
             var list = JSON.parse(body).response.body.items.item;
            
             var resItem = list;

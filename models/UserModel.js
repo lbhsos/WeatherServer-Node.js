@@ -14,9 +14,6 @@ exports.getLocationInfo = (user_data)=>{
     var header = { 
         Authorization: "KakaoAK " + map_key
     };
-
-    console.log(url + queryParams);
-
     return new Promise((resolve, reject)=>{
         request({
             headers : header,
@@ -26,8 +23,40 @@ exports.getLocationInfo = (user_data)=>{
             if (!error && response.statusCode == 200) {
                 var list = JSON.parse(body).documents;
                 var firstItem = list[0];
+                var sidoName = firstItem.region_1depth_name;
+                var cityName = firstItem.region_2depth_name;
+                var townName = firstItem.region_3depth_name;
 
-                resolve(firstItem.region_2depth_name);
+                var location_xy = global.location_data.filter(function(o){      
+                    return (o['1단계']==sidoName && o['2단계']==cityName && o['3단계']==townName);
+                })
+                location_xy = location_xy[0];
+                
+                var areacode = global.area_data.filter(function(o){      
+                    return (o['1단계']==sidoName && o['2단계']==cityName && o['3단계']==townName);
+                })
+                areacode = areacode[0];
+
+                var tmcode = global.tm_data.filter(function(o){
+                    return (sidoName.includes(o['도시']) || cityName.includes(o['도시']));
+                })
+                
+                tmcode = tmcode[0];
+                //console.log(tmcode);
+                if(sidoName == '서울특별시') sidoName = '서울';
+                else if(sidoName == '경기도') sidoName = '경기';
+
+                var region = {
+                    cityName: cityName,
+                    sidoName: sidoName,
+                    townName: townName,
+                    x:location_xy.X,
+                    y:location_xy.Y,
+                    areaNo: areacode.areaNo,
+                    tmcode: tmcode.tmFc
+                }
+                //console.log(region.x +" "+region.y);
+                resolve(region);
             } else {
                 console.log('error : ' + error);
                 reject(res_msg[1500]);

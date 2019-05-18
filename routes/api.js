@@ -17,8 +17,7 @@ module.exports=(router)=>{
     .post(userCtrl.get_region_code,userCtrl.register_user);
     router.route('/main/login')
     .post(userCtrl.login_user);
-    // router.route('/main/comment')
-    // .put(userCtrl.write_comment);
+
 
     router.route('/setting/location')
     .put(userCtrl.get_region_code, userCtrl.edit_location);
@@ -36,24 +35,5 @@ module.exports=(router)=>{
     .put(boardCtrl.like_board);
     router.route('/board/dislike/:id')
     .put(boardCtrl.dislike_board);
-/*    
-    //main
-    router.route('/main/realtime')
-    .get(userCtrl.show_curInfo());
-    router.route('/main/thisweek')
-    .get(userCtrl.show_weekInfo());
-    router.route('/main/location')
-    .put(userGtrl.edit_locInfo());
-
-
-    //setting
-    router.route('/setting/notification')
-    .get(alarmCtrl.show_notification())
-    .put(alarmCtrl.edit_alarm());
-    router.route('/setting/nickname')
-    .get(alarmCtrl.show_nickname())
-    
-*/
-    
     return router;
 }
