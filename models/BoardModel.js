@@ -40,17 +40,17 @@ exports.write_board = (db, board_data)=>{
               if(result==null){
                   reject(res_msg[1300]);
               }else{
-                  resolve(null);
+                  resolve(result);
               }
           }
         });
-    }).then(()=>{
+    }).then((result)=>{
         return new Promise((resolve, reject)=>{
             //var newDate = new Date();
-            console.log(date);
+            console.log(result);
             var newDate = getCurrentDate();
             var expireDate = getExpireDate();
-            var newBoard = new database.boardModel({nickname: board_data.nickname, content: board_data.content, timestamp: newDate, like: 0, dislike: 0, expireAt: expireDate});
+            var newBoard = new database.boardModel({nickname: board_data.nickname, content: board_data.content, timestamp: newDate, like: 0, dislike: 0, expireAt: expireDate, pos: result.region.pos});
             newBoard.save(function(err){
                 if(err){
                     reject(res_msg[1500]);
@@ -64,22 +64,36 @@ exports.write_board = (db, board_data)=>{
 
 
 
-exports.show_board_all = (db)=>{  
+exports.show_board_all = (db,board_data)=>{  
     //24시간 기준 정보 가져오기.
     var database = db;
     return new Promise((resolve, reject)=>{
-        var curDate = getCurrentDate();
-        database.boardModel.find({"expireAt":{"$gte": curDate}}, function(err, result){
-            if(err){
-                reject(res_msg[1500]);
-            }else{
-                if(result == null){
-                        reject(res_msg[1300]);
+        database.userModel.findOne({"uid":board_data.uid,"type":board_data.type,"nickname":board_data.nickname}, function(err, result){
+          if(err){
+              reject(res_msg[1500]);
+          }else{
+              if(result==null){
+                  reject(res_msg[1300]);
+              }else{
+                  resolve(result);
+              }
+          }
+        });
+    }).then((result)=>{
+        return new Promise((resolve, reject)=>{
+            var curDate = getCurrentDate();
+            database.boardModel.find({"expireAt":{"$gte": curDate}, "pos": result.region.pos}, function(err, result){
+                if(err){
+                    reject(res_msg[1500]);
                 }else{
-                    resolve(result);
+                    if(result == null){
+                            reject(res_msg[1300]);
+                    }else{
+                        resolve(result);
+                    }
                 }
-            }
-        }).sort({timestamp:-1});
+            }).sort({timestamp:-1});
+        })
     });
 }
 
@@ -117,8 +131,15 @@ exports.dislike_board = (db, board_data)=>{
                 }else{
                     //console.log(result);
                     var count = result._doc.dislike;
-                  database.boardModel.update({"_id":board_data._id}, {$set: {'dislike': count+1}}).exec();
-                  resolve(null);
+                    if(count==9){
+                        database.boardModel.delete({"_id":board_data._id}, function(err, res){
+                            if(err) reject(res_msg[1300]);
+                            else resolve(null);
+                        });
+                    }else{
+                        database.boardModel.update({"_id":board_data._id}, {$set: {'dislike': count+1}}).exec();
+                        resolve(null);
+                    }
                 }
             }
         });

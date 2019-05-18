@@ -22,8 +22,14 @@ var write_board = async(req, res, next)=>{
 var show_board_all = async(req, res, next)=>{
     let result = '';
     try{
+        const board_data = {
+            uid: req.body.uid,
+            type:req.body.type,
+            nickname: req.body.nickname
+           
+        }
         var db = req.app.get('database');
-        result = await boardModel.show_board_all(db);
+        result = await boardModel.show_board_all(db,board_data);
     }catch(error){
         //console.log(error);
         res.status(500).json(error);

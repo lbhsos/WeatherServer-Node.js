@@ -8,6 +8,7 @@ Schema.createSchema = function(mongoose){
         timestamp:  { type: Date},
         like: Number,
         dislike: Number,
+        pos: String,
         expireAt: {type: Date}
        // user_emo: String
     })

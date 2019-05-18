@@ -4,6 +4,7 @@ const res_msg = require('../error.json');
 var request = require('request');
 var config = require('../config');
 var map_key = config.map_key;
+var pos= null;
 
 exports.getLocationInfo = (user_data)=>{
     
@@ -28,24 +29,28 @@ exports.getLocationInfo = (user_data)=>{
                 var townName = firstItem.region_3depth_name;
 
                 var location_xy = global.location_data.filter(function(o){      
-                    return (o['1단계']==sidoName && o['2단계']==cityName && o['3단계']==townName);
+                    return (sidoName.includes(o['1단계']) && cityName.includes(o['2단계']) && townName.includes(o['3단계']));
                 })
                 location_xy = location_xy[0];
                 
                 var areacode = global.area_data.filter(function(o){      
-                    return (o['1단계']==sidoName && o['2단계']==cityName && o['3단계']==townName);
+                    return (sidoName.includes(o['1단계']) && cityName.includes(o['2단계']) && townName.includes(o['3단계']));
                 })
                 areacode = areacode[0];
 
                 var tmcode = global.tm_data.filter(function(o){
                     return (sidoName.includes(o['도시']) || cityName.includes(o['도시']));
                 })
-                
                 tmcode = tmcode[0];
-                //console.log(tmcode);
+                
                 if(sidoName == '서울특별시') sidoName = '서울';
                 else if(sidoName == '경기도') sidoName = '경기';
-
+                
+                if(user_data.lat >= 37.509497){
+                    pos="up";
+                }else{
+                    pos="down";
+                }
                 var region = {
                     cityName: cityName,
                     sidoName: sidoName,
@@ -53,7 +58,8 @@ exports.getLocationInfo = (user_data)=>{
                     x:location_xy.X,
                     y:location_xy.Y,
                     areaNo: areacode.areaNo,
-                    tmcode: tmcode.tmFc
+                    tmcode: tmcode.tmFc,
+                    pos: pos
                 }
                 //console.log(region.x +" "+region.y);
                 resolve(region);
@@ -142,7 +148,7 @@ exports.show_user = (db,user_data)=>{
 exports.edit_nickname = (db,user_data)=>{ 
     var database = db;
     return new Promise((resolve, reject)=>{
-        database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
+        database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type, "nickname": user_data.nickname}, function(err, result){
             if(!result){
                 reject(res_msg[1300]);
             }

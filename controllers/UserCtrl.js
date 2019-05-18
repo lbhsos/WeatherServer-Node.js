@@ -12,6 +12,7 @@ var register_user = async(req, res, next)=> {
             lng: req.body.lng,
             region: region,
         }
+        //console.log(region);
         var db = req.app.get('database');
         result = await userModel.register_user(db,user_data);
     }catch(error){
@@ -102,6 +103,7 @@ var get_region_code=async(req, res,next)=>{
         }
         result = await userModel.getLocationInfo(user_data);
         region = result;
+        //console.log(region);
         next();
     }catch(error){
         console.log(error);

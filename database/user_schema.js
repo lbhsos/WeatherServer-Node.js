@@ -9,8 +9,11 @@ Schema.createSchema = function(mongoose){
         lng: String,
         region: {
             cityName: String,
-            sidoName: String
-        }
+            sidoName: String,
+            townName: String,
+            pos: String,
+        },
+        
         //published_date: { type: Date, default: Date.now}
     });
     console.log("userSchema 정의함");
