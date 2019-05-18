@@ -384,12 +384,13 @@ function getCurrentDate(){
     var milliseconds = date.getMilliseconds();
     return new Date(Date.UTC(year, month, today, hours, minutes, seconds, milliseconds));
 }
-exports.show_best_board = (db)=>{
+
+exports.show_best_board = (db,pos)=>{
     //24시간 기준 정보 가져오기.
     var database = db;
     return new Promise((resolve, reject)=>{
         var curDate = getCurrentDate();
-        database.boardModel.find({"expireAt":{"$gte": curDate}}, function(err, result){
+        database.boardModel.find({"expireAt":{"$gte": curDate},"pos": pos}, function(err, result){
             if(err){
                 reject(err);
             }else{

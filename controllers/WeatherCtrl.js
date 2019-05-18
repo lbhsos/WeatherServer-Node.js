@@ -50,6 +50,7 @@ var create_data = async(req) => {
     weather_data.y = region.y;
     weather_data.areaNo = region.areaNo;
     weather_data.tmFc = region.tmcode;
+    weather_data.pos = region.pos;
     return weather_data;
 };
 
@@ -147,7 +148,8 @@ var getMiddleTemperature = async(req, res, next)=>{
 var show_best_board= async(req, res, next)=>{
     try{
         var db = req.app.get('database');
-        bestJSON= await weatherAPI.show_best_board(db);
+        weather_data = await create_data(req);
+        bestJSON= await weatherAPI.show_best_board(db,weather_data.pos);
     }catch(error){
         console.log(error);
         res.status(500).json({error:'server error'});
