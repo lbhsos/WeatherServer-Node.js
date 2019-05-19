@@ -15,6 +15,7 @@ exports.getLocationInfo = (user_data)=>{
     var header = { 
         Authorization: "KakaoAK " + map_key
     };
+    console.log(url+queryParams);
     return new Promise((resolve, reject)=>{
         request({
             headers : header,
@@ -65,7 +66,7 @@ exports.getLocationInfo = (user_data)=>{
                 resolve(region);
             } else {
                 console.log('error : ' + error);
-                reject(res_msg[1500]);
+                reject(res_msg[1300]);
             }
         });
     });

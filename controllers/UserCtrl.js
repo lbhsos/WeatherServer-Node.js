@@ -107,8 +107,9 @@ var get_region_code=async(req, res,next)=>{
         next();
     }catch(error){
         console.log(error);
-        return res.status(500).json({error: 'hello'});
-    }    
+        res.status(500).json(error);
+    }  
+    return res.status(200).json(res_msg[1200]); 
 };
 
 module.exports.get_region_code = get_region_code;
