@@ -5,6 +5,7 @@ var request = require('request');
 var config = require('../config');
 var map_key = config.map_key;
 var pos= null;
+var urlencode = require('urlencode');
 
 exports.getLocationInfo = (user_data)=>{
     
@@ -71,6 +72,44 @@ exports.getLocationInfo = (user_data)=>{
         });
     });
 };
+
+exports.getStringAddress = (user_data)=>{
+    
+    var url = 'https://dapi.kakao.com/v2/local/search/address.json';
+    var queryParams = '?'+encodeURIComponent('query')+'='+encodeURIComponent(user_data.keyword);
+   
+    var header = { 
+        Authorization: "KakaoAK " + map_key,
+    };
+    //console.log(url+queryParams);
+    return new Promise((resolve, reject)=>{
+        request({
+            headers : header,
+            url: url+queryParams,
+            method: 'GET',
+        }, function(error, response, body){
+            if(!error){
+                //console.log(body);
+                var ret = {};
+                var list = JSON.parse(body).documents;
+                var count=0;
+                for(var item in list){
+                    ret[item] = {
+                        address_name: list[item].address_name,
+                        x: list[item].x,
+                        y: list[item].y,
+                    }
+                }
+                //console.log(ret);
+                resolve(ret);
+            }else{
+                reject(res_msg[1300]);
+            }
+            
+        })
+    })
+};
+
 
 exports.register_user = (db,user_data)=>{ 
    

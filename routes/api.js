@@ -17,9 +17,9 @@ module.exports=(router)=>{
     .post(userCtrl.get_region_code,userCtrl.register_user);
     router.route('/main/login')
     .post(userCtrl.login_user);
-
-
+    
     router.route('/setting/location')
+    .get(userCtrl.get_address)
     .put(userCtrl.get_region_code, userCtrl.edit_location);
     router.route('/setting/user')
     .put(userCtrl.edit_nickname)
@@ -35,5 +35,6 @@ module.exports=(router)=>{
     .put(boardCtrl.like_board);
     router.route('/board/dislike/:id')
     .put(boardCtrl.dislike_board);
+    
     return router;
 }
