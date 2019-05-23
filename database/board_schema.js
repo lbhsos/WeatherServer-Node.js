@@ -3,13 +3,20 @@ var Schema = { };
 Schema.createSchema = function(mongoose){
     var BoardSchema = mongoose.Schema({
         id: Number,
+        uid: String,
+        type: String,
         nickname: String,
         content: String,
-        timestamp:  { type: Date},
-        like: Number,
-        dislike: Number,
+        comment: {type: String},
+        like: {type: Number, minimum: 0},
+        dislike: {type: Number, minimum: 0},
+        accusation: Number,
         pos: String,
-        expireAt: {type: Date}
+        timestamp:  { type: Date},
+        expireAt: {type: Date},
+        
+        
+
        // user_emo: String
     })
 

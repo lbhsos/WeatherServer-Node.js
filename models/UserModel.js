@@ -90,17 +90,19 @@ exports.getStringAddress = (user_data)=>{
         }, function(error, response, body){
             if(!error){
                 //console.log(body);
-                var ret = {};
+                var ret = new Array;
                 var list = JSON.parse(body).documents;
+              
                 var count=0;
                 for(var item in list){
-                    ret[item] = {
+                    var temp = {
                         address_name: list[item].address_name,
                         x: list[item].x,
                         y: list[item].y,
                     }
+                    ret.push(temp);
                 }
-                //console.log(ret);
+                console.log(ret);
                 resolve(ret);
             }else{
                 reject(res_msg[1300]);
@@ -111,14 +113,12 @@ exports.getStringAddress = (user_data)=>{
 };
 
 
-exports.register_user = (db,user_data)=>{ 
-   
+exports.register_user = (db,user_data)=>{  
     console.log("새로운 인스턴스 객체 "); 
     var database = db;
     return new Promise((resolve, reject)=>{
         database.userModel.find({"nickname": user_data.nickname}, function(err, result){
             if(err){
-                console.log('hello');
                 reject(res_msg[1500]);
             }else{
                 if(result.length>0){
@@ -188,7 +188,7 @@ exports.show_user = (db,user_data)=>{
 exports.edit_nickname = (db,user_data)=>{ 
     var database = db;
     return new Promise((resolve, reject)=>{
-        database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type, "nickname": user_data.nickname}, function(err, result){
+        database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type, "nickname": user_data.prevName}, function(err, result){
             if(!result){
                 reject(res_msg[1300]);
             }

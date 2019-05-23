@@ -33,7 +33,7 @@ exports.write_board = (db, board_data)=>{
     var database = db;
 
     return new Promise((resolve, reject)=>{
-        database.userModel.findOne({"uid":board_data.uid,"type":board_data.type,"nickname":board_data.nickname}, function(err, result){
+        database.userModel.findOne({"uid":board_data.uid,"type":board_data.type}, function(err, result){
           if(err){
               reject(res_msg[1500]);
           }else{
@@ -47,10 +47,22 @@ exports.write_board = (db, board_data)=>{
     }).then((result)=>{
         return new Promise((resolve, reject)=>{
             //var newDate = new Date();
-            console.log(result);
             var newDate = getCurrentDate();
             var expireDate = getExpireDate();
-            var newBoard = new database.boardModel({nickname: board_data.nickname, content: board_data.content, timestamp: newDate, like: 0, dislike: 0, expireAt: expireDate, pos: result.region.pos});
+            var newBoard = new database.boardModel({
+                content: board_data.content, 
+                timestamp: newDate, 
+                like: 0, 
+                dislike: 0, 
+                accusation:0,
+                expireAt: expireDate, 
+                pos: result.region.pos,
+                uid: board_data.uid,
+                type: board_data.type,
+                nickname:board_data.nickname,
+                comment: "",
+                
+            });
             newBoard.save(function(err){
                 if(err){
                     reject(res_msg[1500]);
@@ -62,13 +74,29 @@ exports.write_board = (db, board_data)=>{
     })
 }
 
-
+exports.write_comment = (db, board_data)=>{
+    var database = db; 
+        return new Promise((resolve, reject)=>{
+        database.boardModel.findOne({"_id":board_data.id, "uid": board_data.uid, "type": board_data.type}, function(err, result){
+            if(err){
+                reject(res_msg[1500]);
+            }else{
+                if(result==null){
+                    reject(res_msg[1300]);
+                }else{
+                    database.boardModel.update({$set: {'comment': board_data.comment}}).exec();
+                    resolve(null); 
+                }
+            }
+        });
+    });
+}
 
 exports.show_board_all = (db,board_data)=>{  
     //24시간 기준 정보 가져오기.
     var database = db;
     return new Promise((resolve, reject)=>{
-        database.userModel.findOne({"uid":board_data.uid,"type":board_data.type,"nickname":board_data.nickname}, function(err, result){
+        database.userModel.findOne({"uid":board_data.uid,"type":board_data.type}, function(err, result){
           if(err){
               reject(res_msg[1500]);
           }else{
@@ -100,18 +128,38 @@ exports.show_board_all = (db,board_data)=>{
 exports.like_board = (db, board_data)=>{
     var database = db;
     return new Promise((resolve, reject)=>{
-
-        database.boardModel.findOne({"_id":board_data._id}, function(err, result){
+        database.boardModel.findOne({"_id":board_data.id}, function(err, result){
             if(err){
                 reject(res_msg[1500]);
             }else{
                 if(result == null){
                     reject(res_msg[1300]);
                 }else{
-                    //console.log(result);
                     var count = result._doc.like;
-                    database.boardModel.update({"_id":board_data._id}, {$set: {'like': count+1}}).exec();
+                    database.boardModel.update({"_id":board_data.id}, {$set: {'like': count+1}}).exec();
                     resolve(null);
+                }
+            }
+        });
+    });
+}
+
+exports.like_board_cancel = (db, board_data)=>{
+    var database = db;
+    return new Promise((resolve, reject)=>{
+        database.boardModel.findOne({"_id":board_data.id}, function(err, result){
+            if(err){
+                reject(res_msg[1500]);
+            }else{
+                if(result == null){
+                    reject(res_msg[1300]);
+                }else{
+                    var count = result._doc.like;
+                    if(count==0) resolve(null);
+                    else{
+                        database.boardModel.update({"_id":board_data.id}, {$set: {'like': (count-1)}}).exec();
+                        resolve(null);
+                    }
                 }
             }
         });
@@ -122,7 +170,7 @@ exports.dislike_board = (db, board_data)=>{
     var database = db;
     return new Promise((resolve, reject)=>{
 
-        database.boardModel.findOne({"_id":board_data._id}, function(err, result){
+        database.boardModel.findOne({"_id":board_data.id}, function(err, result){
             if(err){
                 reject(res_msg[1500]);
             }else{
@@ -131,13 +179,28 @@ exports.dislike_board = (db, board_data)=>{
                 }else{
                     //console.log(result);
                     var count = result._doc.dislike;
-                    if(count==9){
-                        database.boardModel.delete({"_id":board_data._id}, function(err, res){
-                            if(err) reject(res_msg[1300]);
-                            else resolve(null);
-                        });
-                    }else{
-                        database.boardModel.update({"_id":board_data._id}, {$set: {'dislike': count+1}}).exec();
+                    database.boardModel.update({"_id":board_data.id}, {$set: {'dislike': count+1}}).exec();
+                    resolve(null);
+                }
+            }
+        });
+    });
+}
+
+exports.dislike_board_cancel = (db, board_data)=>{
+    var database = db;
+    return new Promise((resolve, reject)=>{
+        database.boardModel.findOne({"_id":board_data.id}, function(err, result){
+            if(err){
+                reject(res_msg[1500]);
+            }else{
+                if(result==null){
+                        reject(res_msg[1300]);
+                }else{
+                    var count = result._doc.dislike;
+                    if(count==0) resolve(null);
+                    else{
+                        database.boardModel.update({"_id":board_data.id}, {$set: {'dislike': (count-1)}}).exec();
                         resolve(null);
                     }
                 }
@@ -150,16 +213,42 @@ exports.remove_board = (db,board_data)=>{
     var database = db;
     return new Promise((resolve, reject)=>{
 
-        database.boardModel.findOne({"_id":board_data._id}, function(err, result){
+        database.boardModel.findOne({"_id":board_data.id, "uid": board_data.uid, "type": board_data.type}, function(err, result){
             if(err){
                 reject(res_msg[1500]);
             }else{
                 if(result==null){
                         reject(res_msg[1300]);
                 }else{
-                    //console.log(result);
-                  database.boardModel.remove({"_id":board_data._id}).exec();
+                  database.boardModel.remove({"_id":board_data.id}).exec();
                   resolve(null);
+                }
+            }
+        });
+    });
+}
+
+exports.accuse_board = (db, board_data)=>{
+    var database = db;
+    return new Promise((resolve, reject)=>{
+
+        database.boardModel.findOne({"_id":board_data.id}, function(err, result){
+            if(err){
+                reject(res_msg[1500]);
+            }else{
+                if(result==null){
+                        reject(res_msg[1300]);
+                }else{
+                    var count = result._doc.accusation;
+                    if(count==9){
+                        database.boardModel.remove({"_id":board_data.id}, function(err, res){
+                            if(err) reject(res_msg[1300]);
+                            else resolve(null);
+                        });
+                    }else{
+                        database.boardModel.update({"_id":board_data.id}, {$set: {'accusation': count+1}}).exec();
+                        resolve(null);
+                    }
                 }
             }
         });

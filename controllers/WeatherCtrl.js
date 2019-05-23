@@ -7,6 +7,7 @@ var dayAfterTomorrow;
 var today;
 var tomorrow;
 var curTime;
+var weather_data;
 
 var getDate=async(req, res, next)=>{
     try{
@@ -28,35 +29,39 @@ var getDate=async(req, res, next)=>{
     return next();
 };
 
-var create_data = async(req) => {
-    const weather_data={
-        lat: req.params.lat || req.query.lat,
-        lng: req.params.lng || req.query.lng,
-        dayAfterTomorrow: dayAfterTomorrow,
-        today: today,
-        tomorrow: tomorrow,
-        yesterday: yesterday,
-        curTime: curTime,  
-    }
-    var user_data = {
-        lat:weather_data.lat,
-        lng:weather_data.lng
-    }
+var create_data = async(req,res,next) => {
+    try{
+        weather_data={
+            lat: req.params.lat || req.query.lat,
+            lng: req.params.lng || req.query.lng,
+            dayAfterTomorrow: dayAfterTomorrow,
+            today: today,
+            tomorrow: tomorrow,
+            yesterday: yesterday,
+            curTime: curTime,  
+        }
+        var user_data = {
+            lat:weather_data.lat,
+            lng:weather_data.lng
+        }
 
-    var region = await userModel.getLocationInfo(user_data);
-    weather_data.cityName = region.cityName;
-    weather_data.sidoName = region.sidoName;
-    weather_data.x = region.x;
-    weather_data.y = region.y;
-    weather_data.areaNo = region.areaNo;
-    weather_data.tmFc = region.tmcode;
-    weather_data.pos = region.pos;
-    return weather_data;
+        var region = await userModel.getLocationInfo(user_data);
+        weather_data.cityName = region.cityName;
+        weather_data.sidoName = region.sidoName;
+        weather_data.x = region.x;
+        weather_data.y = region.y;
+        weather_data.areaNo = region.areaNo;
+        weather_data.tmFc = region.tmcode;
+        weather_data.pos = region.pos;
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({error: 'create data error'});
+    }
+    return next();
 };
 
 var getRealTimeFineDust = async(req, res, next)=>{
-    try{
-        weather_data = await create_data(req);
+    try{  
         fineDustJSON = await weatherAPI.getRealTimeFineDust(weather_data);
         //console.log(fineDustJSON);
     }catch(error){
@@ -67,13 +72,9 @@ var getRealTimeFineDust = async(req, res, next)=>{
 };
 
 var getCurrentData= async(req, res, next)=>{
-    //let result = '';
     try{
-        weather_data = await create_data(req);
         currentJSON = await weatherAPI.getCurrentData(weather_data);
-        //console.log(currentJSON);
     }catch(error){
-        //console.log(error);
         return res.status(500).json({error: 'current api error'});
     }
     return next();
@@ -82,10 +83,10 @@ var getCurrentData= async(req, res, next)=>{
 var getTodayWeather = async(req, res, next)=>{
     let result = '';
     try{
-        weather_data = await create_data(req);
         todayJSON = await weatherAPI.getTodayWeather(weather_data,0);
         //console.log(todayJSON);
     }catch(error){
+        console.log(error);
         return res.status(500).json({error: 'today api error'});
     }
    return next();
@@ -93,7 +94,6 @@ var getTodayWeather = async(req, res, next)=>{
 
 var getTomorrowWeather = async(req, res, next)=>{
     try{
-        weather_data = await create_data(req);
         tomorrowJSON = await weatherAPI.getTodayWeather(weather_data,1);
    
     }catch(error){
@@ -104,7 +104,6 @@ var getTomorrowWeather = async(req, res, next)=>{
 
 var getHeatLife = async(req, res, next)=>{
     try{
-        weather_data = await create_data(req);
         heatJSON = await weatherAPI.getHeatLife(weather_data);
    
     }catch(error){
@@ -115,7 +114,6 @@ var getHeatLife = async(req, res, next)=>{
 
 var getUltraVLife = async(req, res, next)=>{
     try{
-        weather_data = await create_data(req);
         ultravJSON = await weatherAPI.getUltraVLife(weather_data);
         
     }catch(error){
@@ -126,7 +124,6 @@ var getUltraVLife = async(req, res, next)=>{
 
 var getMiddleLandWeather = async(req, res, next)=>{
     try{
-        weather_data = await create_data(req);
         middleLandJSON = await weatherAPI.getMiddleLandWeather(weather_data);
     
      }catch(error){
@@ -136,7 +133,6 @@ var getMiddleLandWeather = async(req, res, next)=>{
 }
 var getMiddleTemperature = async(req, res, next)=>{
     try{
-        weather_data = await create_data(req);
         middleTempJSON = await weatherAPI.getMiddleTemperature(weather_data);
     
      }catch(error){
@@ -148,7 +144,6 @@ var getMiddleTemperature = async(req, res, next)=>{
 var show_best_board= async(req, res, next)=>{
     try{
         var db = req.app.get('database');
-        weather_data = await create_data(req);
         bestJSON= await weatherAPI.show_best_board(db,weather_data.pos);
     }catch(error){
         console.log(error);
@@ -179,7 +174,7 @@ var combineAllData = async(req, res, next)=>{
     return res.status(200).json(weatherData);
 }
 
-
+module.exports.create_data = create_data;
 module.exports.getDate = getDate;
 module.exports.getHeatLife = getHeatLife;
 module.exports.show_best_board = show_best_board;

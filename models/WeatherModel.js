@@ -1,11 +1,10 @@
 var https = require('https');
 var request = require('request');
 var config = require('../config');
+var moment = require('moment');
 var service_key = config.service_key;
 
 var util = require('util');
-
-
 exports.getRealTimeFineDust = (weather_data)=>{
     
     var url = 'http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnMesureSidoLIst';
@@ -24,18 +23,14 @@ exports.getRealTimeFineDust = (weather_data)=>{
         if (!error && response.statusCode == 200) {
             var list = JSON.parse(body).list;
             for(var item in list){
-
               if(list[item].cityName==weather_data.cityName){
-                
                 var resItem = {
-                    //cityName: list[item].cityName,
                     coValue: list[item].coValue,
                     dataTime: list[item].dataTime,
                     no2Value: list[item].no2Value,
                     o3Value: list[item].o3Value,
                     pm10Value: list[item].pm10Value,
                     pm25Value: list[item].pm25Value,
-                    //sidoName: list[item].sidoName,
                     so2Value: list[item].so2Value
                 }
     
@@ -44,7 +39,6 @@ exports.getRealTimeFineDust = (weather_data)=>{
             
             resolve(resItem);
           } else {
-            console.log(error);
             reject({error: 'realtime fineDust error'});
           }
     });
@@ -85,9 +79,6 @@ exports.getCurrentData = (weather_data)=>{
     queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /* 페이지 번호 */
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml(기본값), json*/
 
-    //console.log(weather_data.x);
-    //console.log(weather_data.y);
-
     return new Promise((resolve, reject)=>{
         request({
             url: url + queryParams,
@@ -124,8 +115,16 @@ exports.getCurrentData = (weather_data)=>{
 
 //동네예보
 exports.getTodayWeather = (weather_data, flag)=>{
-    var standardDate, wantedDate;
+    var standardDate, basetime, basedate;
     var request = require('request');
+
+    if(moment('0500').isAfter(weather_data.curTime)){
+        basedate = weather_data.yesterday;
+        basetime = '0500';
+    }else{
+        basedate = weather_data.today;
+        basetime='0200';
+    }
 
     if(flag==0) {
         standardDate = weather_data.today;
@@ -136,8 +135,8 @@ exports.getTodayWeather = (weather_data, flag)=>{
     }
     var url = 'http://newsky2.kma.go.kr/service/SecndSrtpdFrcstInfoService2/ForecastSpaceData';
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + service_key; /* Service Key*/
-    queryParams += '&' + encodeURIComponent('base_date') + '=' + weather_data.today; /* ‘15년 12월 1일발표 */
-    queryParams += '&' + encodeURIComponent('base_time') + '=' + encodeURIComponent('0200'); /* 05시 발표 * 기술문서 참조 */
+    queryParams += '&' + encodeURIComponent('base_date') + '=' + basedate; /* ‘15년 12월 1일발표 */
+    queryParams += '&' + encodeURIComponent('base_time') + '=' + encodeURIComponent(basetime); /* 05시 발표 * 기술문서 참조 */
     queryParams += '&' + encodeURIComponent('nx') + '=' + weather_data.x; /* 예보지점의 X 좌표값 */
     queryParams += '&' + encodeURIComponent('ny') + '=' + weather_data.y; /* 예보지점의 Y 좌표값 */
     queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('200'); /* 한 페이지 결과 수 */
@@ -148,11 +147,10 @@ exports.getTodayWeather = (weather_data, flag)=>{
         request({
             url: url + queryParams,
             method: 'GET'
-        }, function (error, response, body) {      
+        }, function (error, response, body) {    
             var ptyValue, skyValue, tmnValue, tmxValue, t3hValue, popValue;
             var timeArr=['0600','0900', '1200', '1500', '1800', '2100'];
             var resItem={};
-
             if (!error && response.statusCode == 200) {
                 var list = JSON.parse(body).response.body.items.item;
                 for(var time in timeArr){
@@ -195,7 +193,7 @@ exports.getTodayWeather = (weather_data, flag)=>{
                 resolve(resItem);
             } 
             else {
-                console.log('error');
+                console.log(error);
                 reject({error: 'today weather error'});
             }
         
@@ -214,13 +212,10 @@ exports.getHeatLife = (weather_data)=>{
 
     var url = 'http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/getSensoryHeatLifeList';
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+service_key; /* Service Key*/
-    //queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('-'); /* 공공데이터포털에서 받은 인증키 */
     queryParams += '&' + encodeURIComponent('areaNo') + '=' + weather_data.areaNo; /* 서울지점 */
     queryParams += '&' + encodeURIComponent('requestCode') + '=' + encodeURIComponent('A20'); /* 일반인 */
     queryParams += '&' + encodeURIComponent('time') + '=' + today_str; /* 2017년 6월 8일 6시 발표 */
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml , json 선택 */
-    
-    //console.log(url + queryParams);
 
     return new Promise((resolve, reject)=>{
         request({
@@ -234,8 +229,6 @@ exports.getHeatLife = (weather_data)=>{
             //console.log(body);z
             var list = JSON.parse(body).Response.body.indexModel;
             var keys = Object.keys(list);
-            //console.log(list);
-            //console.log(keys);
             for (key_index in keys){
                 var key = keys[key_index]
                 if(key.startsWith("h")){
@@ -247,8 +240,6 @@ exports.getHeatLife = (weather_data)=>{
                     }
                 }
             }
-           
-            //console.log(today_heat);
             var resItem = {
                 today_heat: today_heat,
                 tomorrow_heat: tomorrow_heat,
@@ -265,9 +256,15 @@ exports.getHeatLife = (weather_data)=>{
 
 exports.getUltraVLife = (weather_data)=>{
     var request = require('request');
-    var today_str = weather_data.today+"06";
-    //console.log(today_str);
-    
+    var today_str;
+    var flag = 0;
+    if(moment('0600').isAfter(weather_data.curTime)){
+        today_str = weather_data.yesterday+"06";;
+    }else{
+        today_str = weather_data.today+"06";
+        flag =1;
+    }
+
     var url = 'http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/getUltrvLifeList';
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+ service_key; /* Service Key*/
     queryParams += '&' + encodeURIComponent('areaNo') + '=' +weather_data.areaNo; /* 서울지점 */
@@ -282,20 +279,20 @@ exports.getUltraVLife = (weather_data)=>{
         }, function (error, response, body) {
           var today_ultrav;
           var tomorrow_ultrav;
-          var theDayAfterTomorrow_ultrav;
-          //console.log(body);
           if (!error && response.statusCode == 200) {
-              //console.log(body);
             var list = JSON.parse(body).Response.body.indexModel;
-            today_ultrav = list.today;
-            tomorrow_ultrav = list.tomorrow;
-            theDayAfterTomorrow_ultrav=list.theDayAfterTomorrow;
-
+            if(flag == 0){
+                today_ultrav = list.tomorrow;
+                tomorrow_ultrav = list.theDayAfterTomorrow;
+            }else{
+                today_ultrav = list.today;
+                tomorrow_ultrav = list.tomorrow;
+                theDayAfterTomorrow_ultrav=list.theDayAfterTomorrow;
+            }
            
             var resItem = {
                 today_ultrav: today_ultrav,
                 tomorrow_ultrav: tomorrow_ultrav,
-                theDayAfterTomorrow_ultrav: theDayAfterTomorrow_ultrav
             }
       
             resolve(resItem);
@@ -309,10 +306,17 @@ exports.getUltraVLife = (weather_data)=>{
 
 exports.getMiddleLandWeather = (weather_data)=>{
     var request = require('request');
-    var base_str = weather_data.today+"0600";
+    var base_str;
+    var flag = 0;
+    if(moment('0600').isAfter(weather_data.curTime)){
+        base_str = weather_data.yesterday+"1800";;
+    }else{
+        base_str = weather_data.today+"0600";
+        flag =1;
+    }
+
     var url = 'http://newsky2.kma.go.kr/service/MiddleFrcstInfoService/getMiddleLandWeather';
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+service_key; /* Service Key*/
-    //queryParams += '&' + encodeURIComponent('ServiceKey') + '=' + encodeURIComponent('-'); /* 공공데이터포털에서 받은 인증키 */
     queryParams += '&' + encodeURIComponent('regId') + '=' +encodeURIComponent('11B00000'); /* 서울지점 */
     queryParams += '&' + encodeURIComponent('tmFc') + '=' + base_str; /* 2017년6월8일6시 */
     queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('1'); 
@@ -326,8 +330,24 @@ exports.getMiddleLandWeather = (weather_data)=>{
          
           if (!error && response.statusCode == 200) {
             var list = JSON.parse(body).response.body.items.item;
-            var resItem = list;
-
+            if(flag==0){
+                var resItem = {
+                    "regId": list.regId,
+                    "wf3Am": list.wf4Am,
+                    "wf3Pm": list.wf4Pm,
+                    "wf4Am": list.wf5Am,
+                    "wf4Pm": list.wf5Pm,
+                    "wf5Am": list.wf6Am,
+                    "wf5Pm": list.wf6Pm,
+                    "wf6Am": list.wf7Am,
+                    "wf6Pm": list.wf7Pm,
+                    "wf7": list.wf8,
+                    "wf8": list.wf9,
+                    "wf9": list.wf10,              
+                }
+            }else{
+                var resItem = list;
+            }
             resolve(resItem);
             } else {
               console.log('error');
@@ -341,8 +361,15 @@ exports.getMiddleLandWeather = (weather_data)=>{
 
 exports.getMiddleTemperature= (weather_data)=>{
     var request = require('request');
-    var base_str = weather_data.today+"0600";
-    //console.log(weather_data.tmFc);
+    var base_str;
+    var flag = 0;
+    if(moment('0600').isAfter(weather_data.curTime)){
+        base_str = weather_data.yesterday+"1800";;
+    }else{
+        base_str = weather_data.today+"0600";
+        flag = 1;
+    }
+
     var url = 'http://newsky2.kma.go.kr/service/MiddleFrcstInfoService/getMiddleTemperature';
     var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+service_key; /* Service Key*/
     queryParams += '&' + encodeURIComponent('regId') + '=' +encodeURIComponent(weather_data.tmFc); /* 서울지점 */
@@ -350,7 +377,6 @@ exports.getMiddleTemperature= (weather_data)=>{
     queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); 
     queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); 
     queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* xml, json 선택(미입력시 xml) */
-    console.log(url + queryParams);
     return new Promise((resolve, reject)=>{
         request({
             url: url + queryParams,
@@ -358,13 +384,30 @@ exports.getMiddleTemperature= (weather_data)=>{
         }, function (error, response, body) {
          
           if (!error && response.statusCode == 200) {
-            // console.log(body);
             var list = JSON.parse(body).response.body.items.item;
-           
-            var resItem = list;
+            if(flag==0){
+                var resItem = {
+                    "regId": list.regId,
+                    "taMin3": list.taMin4,
+                    "taMax3": list.taMax4,
+                    "taMin4": list.taMin5,
+                    "taMax4": list.taMin5,
+                    "taMin5": list.taMin6,
+                    "taMax5": list.taMax6,
+                    "taMin6": list.taMin7,
+                    "taMax6": list.taMax7,
+                    "taMin7": list.taMin8,
+                    "taMax7": list.taMax8,
+                    "taMin8": list.taMin9,
+                    "taMax8": list.taMax9,
+                    "taMin9": list.taMin10,
+                    "taMax9": list.taMax10   
+                }
+            }else{
+                var resItem = list;
+            }         
             resolve(resItem);
             } else {
-              console.log('error');
                 reject({error: 'getmiddle temp Data error'}); 
             }
 
