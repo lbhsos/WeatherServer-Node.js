@@ -21,12 +21,24 @@ console.log('config.server_port : %d', config.server_port);
 let locationFile = './location.csv';
 var location_xy =csvToJson.fieldDelimiter(',').getJsonFromCsv(locationFile);
 global.location_data = location_xy;
+
 let areaFile = './areacode.csv'
 var areacode = csvToJson.fieldDelimiter(',').getJsonFromCsv(areaFile);
 global.area_data = areacode;
+
 let tmFile = './tmFc.csv'
 var tmcode = csvToJson.fieldDelimiter(',').getJsonFromCsv(tmFile);
 global.tm_data = tmcode;
+
+// let tempFile = './temperature.csv'
+// var tempcode = csvToJson.fieldDelimiter(',').getJsonFromCsv(tempFile);
+// global.temp_data = tempcode;
+// console.log(tempcode);
+
+// let lifeFile = './life.csv'
+// var lifecode = csvToJson.fieldDelimiter(',').getJsonFromCsv(lifeFile);
+// global.life_data = lifecode;
+
 
 app.set('port', config.server_port);
 app.listen(app.get('port'), () => {

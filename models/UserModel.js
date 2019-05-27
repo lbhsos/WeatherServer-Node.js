@@ -1,11 +1,11 @@
 'use strict';
 const res_msg = require('../error.json');
+const crypto = require('crypto');
 /* model definition */
 var request = require('request');
 var config = require('../config');
 var map_key = config.map_key;
 var pos= null;
-var urlencode = require('urlencode');
 
 exports.getLocationInfo = (user_data)=>{
     
@@ -16,7 +16,7 @@ exports.getLocationInfo = (user_data)=>{
     var header = { 
         Authorization: "KakaoAK " + map_key
     };
-    console.log(url+queryParams);
+    //console.log(url+queryParams);
     return new Promise((resolve, reject)=>{
         request({
             headers : header,
@@ -81,7 +81,7 @@ exports.getStringAddress = (user_data)=>{
     var header = { 
         Authorization: "KakaoAK " + map_key,
     };
-    //console.log(url+queryParams);
+    
     return new Promise((resolve, reject)=>{
         request({
             headers : header,
@@ -102,7 +102,7 @@ exports.getStringAddress = (user_data)=>{
                     }
                     ret.push(temp);
                 }
-                console.log(ret);
+                //console.log(ret);
                 resolve(ret);
             }else{
                 reject(res_msg[1300]);
@@ -112,9 +112,7 @@ exports.getStringAddress = (user_data)=>{
     })
 };
 
-
-exports.register_user = (db,user_data)=>{  
-    console.log("새로운 인스턴스 객체 "); 
+exports.check_nickname = (db,user_data)=>{   
     var database = db;
     return new Promise((resolve, reject)=>{
         database.userModel.find({"nickname": user_data.nickname}, function(err, result){
@@ -128,43 +126,97 @@ exports.register_user = (db,user_data)=>{
                 }
             }
         });
-    }).then(()=>{
-        //추가 
-        return new Promise((resolve, reject)=>{
-            var newUser = new database.userModel({
-                type: user_data.type,
-                uid: user_data.uid,
-                nickname: user_data.nickname, 
-                lat: user_data.lat, 
-                lng: user_data.lng,
-                region: user_data.region});
-                newUser.save(function(err){
-                if(err){
-                    console.log('hi');
-                    reject(res_msg[1500]);
+    });
+};
+
+
+
+exports.register_user = (db,user_data)=>{   
+    var database = db;
+    let hashUID, salt;
+    return new Promise((resolve, reject)=>{
+        database.userModel.find({"nickname": user_data.nickname}, function(err, result){
+            if(err){
+                reject(res_msg[1500]);
+            }else{
+                if(result.length>0){
+                    reject(res_msg[1301]);
                 }else{
                     resolve(null);
                 }
-            });
+            }
         });
-    });
-};
+    }).then(()=>{
+        return new Promise((resolve, reject)=>{ 
+            var key;
+            salt = Math.round((new Date().valueOf()*Math.random()))+"";
+            hashUID = crypto.pbkdf2(user_data.userid, salt, 100000, 64, 'sha512', (err, key) => {
+                if(err) 
+                    reject(res_msg[1500]);
+                else{
+                    //key = key;
+                        
+                    hashUID = key.toString('hex');
+                    //console.log("");
+                    //console.log(hashUID);
+                    var newUser = new database.userModel({
+                        type: user_data.type,
+                        userid: user_data.userid,
+                        salt: salt,
+                        uid: hashUID,
+                        nickname: user_data.nickname, 
+                        lat: user_data.lat, 
+                        lng: user_data.lng,
+                        region: user_data.region
+                    });
+                        
+                        newUser.save(function(err){
+                            if(err){
+                                reject(res_msg[1500]);
+                            }else{
+                                resolve(newUser);
+                            }  
+                        });
+                    }
+                    });
+                })
+            })
+        }
+            
+    
 
 exports.login_user = (db,user_data)=>{    
     console.log("새로운 인스턴스 객체 "); 
     var database = db;
     return new Promise((resolve, reject)=>{
-        database.userModel.find({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
+        var salt, hashUID;
+
+        database.userModel.findOne({"userid" :user_data.userid, "type": user_data.type}, function(err, result){
             if(err){
                 reject(res_msg[1500]);
             }else{
-                if(result.length<=0){
+                if(result == null){
                     reject(res_msg[1300]);
                 }else{
-                    resolve(result[0]);
+                    salt = result.salt;
+                    crypto.pbkdf2(user_data.userid, salt, 100000, 64, 'sha512', (err, key) => {
+                        if(err) reject(res_msg[1500]);
+                        else{
+                            hashUID = key.toString('hex');
+                            database.userModel.findOne({"uid" :hashUID,"type": user_data.type}, function(err, result){
+                                if(err) reject(res_msg[1500]);
+                                else if(result == null){
+                                    reject(res_msg[1300]);
+                                }else{
+                                    resolve(result);
+                                }
+                            });
+                        }
+                    });
                 }
             }
         });
+
     });
 };
 
@@ -188,30 +240,85 @@ exports.show_user = (db,user_data)=>{
 exports.edit_nickname = (db,user_data)=>{ 
     var database = db;
     return new Promise((resolve, reject)=>{
-        database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type, "nickname": user_data.prevName}, function(err, result){
-            if(!result){
-                reject(res_msg[1300]);
+        database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
+            if(err){
+                reject(res_msg[1500]);
             }
-            else{
-                database.userModel.update({'nickname': user_data.prevName}, {$set:{'nickname': user_data.newName}}).exec();
-                resolve(null);
+            else if(result == null){
+                reject(res_msg[1300]);
+            }else{
+                resolve(result);
             }
         })
+    }).then((user)=>{
+            return new Promise((resolve, reject)=>{
+                database.userModel.find({"nickname": user_data.newName}, function(err, result){
+                    if(err){
+                        reject(res_msg[1500]);
+                    }else{
+                        if(result.length>0){
+                            reject(res_msg[1301]);
+                        }else{
+                            resolve(user);
+                        }
+                    }
+                });
+            }).then((user)=>{
+                return new Promise((resolve, reject)=>{
+                    try{
+                        database.userModel.update({$set:{'nickname': user_data.newName}}).exec();
+                        user = database.userModel.findOne({"uid": user.uid}, function(err, result){
+                            if(err){
+                                reject(res_msg[1500]);
+                            }
+                        });
+                    }
+                    catch(error){
+                        reject(res_msg[1500]);
+                    }
+                    resolve(user);
+                });
+        });
     });
 };
 
 exports.edit_location = (db,user_data)=>{ 
     var database = db;
+    //var user;
     return new Promise((resolve, reject)=>{
         database.userModel.findOne({"uid" :user_data.uid, "type": user_data.type}, function(err, result){
-            if(!result){
+            if(err){
+                reject(res_msg[1500]);
+            }
+            else if(result == null){
                 reject(res_msg[1300]);
             }
             else{
-                database.userModel.update({$set:{'lat': user_data.lat, 'lng': user_data.lng,"region":user_data.region}}).exec();
-                resolve(null);
+                resolve(result);
             }
         })
+    }).then((user)=>{
+        return new Promise((resolve, reject)=>{
+            try{
+                database.userModel.updateOne({'uid': user.uid},{$set:{'lat': user_data.lat, 'lng': user_data.lng, 'region':user_data.region}}).exec();
+            }
+            catch(error){
+                reject(res_msg[1500]);
+            }
+            resolve(user);
+        }); 
+    }).then((res)=>{
+        return new Promise((resolve, reject)=>{
+            var user = database.userModel.findOne({"uid": res.uid}, function(err, result){
+                if(err){
+                    reject(res_msg[1500]);
+                }else{
+                    if(result == null) reject(res_msg[1300]);
+                    else
+                        resolve(user);
+                }
+            });
+        });
     });
 };
 

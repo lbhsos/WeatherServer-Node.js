@@ -2,6 +2,7 @@ const boardModel = require('../models/BoardModel');
 const res_msg = require('../error.json');
 
 var write_board = async(req, res, next)=>{
+    let result = '';
     try{
         const board_data = {
             uid: req.body.uid,
@@ -15,7 +16,7 @@ var write_board = async(req, res, next)=>{
         //console.log(error);
         res.status(500).json(error);
     }
-    return res.status(200).json(res_msg[1200]);
+    return res.status(200).json(result);
 }
 
 var write_comment = async(req, res, next)=>{
@@ -39,9 +40,9 @@ var show_board_all = async(req, res, next)=>{
     let result = '';
     try{
         const board_data = {
-            uid: req.body.uid,
-            type:req.body.type,
-            nickname: req.body.nickname
+            uid: req.query.uid,
+            type:req.query.type,
+            nickname: req.query.nickname
            
         }
         var db = req.app.get('database');
@@ -132,7 +133,7 @@ var remove_board = async(req, res, next)=>{
             id: req.query.id,
             uid: req.query.uid,
             type: req.query.type,
-            nickname: req.query.nickname,
+            
         }
         result = await boardModel.remove_board(db, board_data);
     }catch(error){

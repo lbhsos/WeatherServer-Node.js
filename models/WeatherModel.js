@@ -84,7 +84,7 @@ exports.getCurrentData = (weather_data)=>{
             url: url + queryParams,
             method: 'GET'
         }, function (error, response, body) {
-        var tempValue, humidValue;
+        var tempValue, humidValue, rainfallValue;
         if (!error && response.statusCode == 200) {
             // console.log(body);
             var list = JSON.parse(body).response.body.items.item;
@@ -96,11 +96,15 @@ exports.getCurrentData = (weather_data)=>{
                 if(list[item].category == "REH"){
                     humidValue = list[item].obsrValue;
                 }
+                if(list[item].category == "RN1"){
+                    rainfallValue = list[item].obsrValue;
+                }
             }
 
             var resItem = {
                 temp: tempValue,
                 humid: humidValue,
+                rainfall: rainfallValue
             }
 
             resolve(resItem);
@@ -148,7 +152,7 @@ exports.getTodayWeather = (weather_data, flag)=>{
             url: url + queryParams,
             method: 'GET'
         }, function (error, response, body) {    
-            var ptyValue, skyValue, tmnValue, tmxValue, t3hValue, popValue;
+            var ptyValue, skyValue, tmnValue, tmxValue, t3hValue, popValue, rainfallValue, snowfallValue, humidValue, windValue;
             var timeArr=['0600','0900', '1200', '1500', '1800', '2100'];
             var resItem={};
             if (!error && response.statusCode == 200) {
@@ -174,6 +178,18 @@ exports.getTodayWeather = (weather_data, flag)=>{
                         if(list[item].category == "POP"){
                             popValue = list[item].fcstValue;
                         }
+                        if(list[item].category == "R06"){
+                            rainfallValue = list[item].fcstValue;
+                        }
+                        if(list[item].category == "S06"){
+                            snowfallValue = list[item].fcstValue;
+                        }
+                        if(list[item].category == "WSD"){
+                            windValue = list[item].fcstValue;
+                        }
+                        if(list[item].category == "REH"){
+                            humidValue = list[item].fcstValue;
+                        }
                         }
                         
                         let data = {
@@ -185,6 +201,10 @@ exports.getTodayWeather = (weather_data, flag)=>{
                             lowestTemp: tmnValue,
                             temp: t3hValue,
                             rainPop: popValue,
+                            rainfallValue: rainfallValue,
+                            snowfallValue: snowfallValue,
+                            humid: humidValue,
+                            wind: windValue,
                         }
                         resItem[timeArr[time]]=data;
                     }
