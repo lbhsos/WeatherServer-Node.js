@@ -24,7 +24,7 @@ var write_comment = async(req, res, next)=>{
         const board_data = {
             id: req.body.id,
             uid: req.body.uid,
-            type:req.body.type,
+            type: req.body.type,
             comment : req.body.comment,
         }
         var db = req.app.get('database');
@@ -43,7 +43,6 @@ var show_board_all = async(req, res, next)=>{
             uid: req.query.uid,
             type:req.query.type,
             nickname: req.query.nickname
-           
         }
         var db = req.app.get('database');
         result = await boardModel.show_board_all(db,board_data);
@@ -116,7 +115,8 @@ var accuse_board = async(req, res, next)=>{
     try{
         var db = req.app.get('database');
         const board_data={
-            id: req.params.id || req.query.id
+            id: req.params.id || req.query.id,
+            index: req.params.index || req.query.index
         }
         result = await boardModel.accuse_board(db,board_data);
     }catch(error){
