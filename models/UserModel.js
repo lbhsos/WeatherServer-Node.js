@@ -150,15 +150,13 @@ exports.register_user = (db,user_data)=>{
         return new Promise((resolve, reject)=>{ 
             var key;
             salt = Math.round((new Date().valueOf()*Math.random()))+"";
-            hashUID = crypto.pbkdf2(user_data.userid, salt, 100000, 64, 'sha512', (err, key) => {
+            hashUID = crypto.pbkdf2(user_data.userid, salt, config.hash_count, 64, 'sha512', (err, key) => {
                 if(err) 
                     reject(res_msg[1500]);
                 else{
                     //key = key;
                         
                     hashUID = key.toString('hex');
-                    //console.log("");
-                    //console.log(hashUID);
                     var newUser = new database.userModel({
                         type: user_data.type,
                         userid: user_data.userid,
@@ -169,19 +167,19 @@ exports.register_user = (db,user_data)=>{
                         lng: user_data.lng,
                         region: user_data.region
                     });
-                        
-                        newUser.save(function(err){
-                            if(err){
-                                reject(res_msg[1500]);
-                            }else{
-                                resolve(newUser);
-                            }  
-                        });
-                    }
+                    
+                    newUser.save(function(err){
+                        if(err){
+                            reject(res_msg[1500]);
+                        }else{
+                            resolve(newUser);
+                        }  
                     });
-                })
-            })
-        }
+                }
+            });
+        })
+    })
+}
             
     
 
@@ -199,7 +197,7 @@ exports.login_user = (db,user_data)=>{
                     reject(res_msg[1300]);
                 }else{
                     salt = result.salt;
-                    crypto.pbkdf2(user_data.userid, salt, 100000, 64, 'sha512', (err, key) => {
+                    crypto.pbkdf2(user_data.userid, salt, config.hash_count, 64, 'sha512', (err, key) => {
                         if(err) reject(res_msg[1500]);
                         else{
                             hashUID = key.toString('hex');
