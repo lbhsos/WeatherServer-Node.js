@@ -41,7 +41,7 @@ var check_nickname = async (req, res, next)=>{
     let result = '';
     try{
         const user_data = {
-            nickname: req.body.nickname
+            nickname: req.query.nickname
         }
         var db = req.app.get('database');
         result = await userModel.check_nickname(db, user_data);

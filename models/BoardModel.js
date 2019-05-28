@@ -90,7 +90,7 @@ exports.write_comment = (db, board_data)=>{
             }
         });
     });
-}
+};
 
 exports.show_board_all = (db,board_data)=>{  
     //24시간 기준 정보 가져오기.
@@ -245,7 +245,22 @@ exports.accuse_board = (db, board_data)=>{
                             if(err) reject(res_msg[1300]);
                             else resolve(null);
                         });
-                    }else{
+                    }else if(count == 0){
+                        var newAccuse = new database.accuseModel({
+                            result
+                        });
+
+                        
+                        newAccuse.accuse_type = board_data.index;
+                        newAccuse.save(function(err){
+                            if(err){
+                                reject(res_msg[1500]);
+                            }else{
+                                resolve(newAccuse);
+                            }  
+                        });
+                    }
+                    else{
                         database.boardModel.update({"_id":board_data.id}, {$set: {'accusation': count+1}}).exec();
                         resolve(null);
                     }
