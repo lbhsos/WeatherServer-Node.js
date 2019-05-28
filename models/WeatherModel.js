@@ -121,7 +121,7 @@ exports.getCurrentData = (weather_data)=>{
 exports.getTodayWeather = (weather_data, flag)=>{
     var standardDate, basetime, basedate;
     var request = require('request');
-
+    
     if(moment('0500').isAfter(weather_data.curTime)){
         basedate = weather_data.yesterday;
         basetime = '0500';
@@ -153,6 +153,7 @@ exports.getTodayWeather = (weather_data, flag)=>{
             method: 'GET'
         }, function (error, response, body) {    
             var ptyValue, skyValue, tmnValue, tmxValue, t3hValue, popValue, rainfallValue, snowfallValue, humidValue, windValue;
+            var temp_message_data, sky_message_data; 
             var timeArr=['0600','0900', '1200', '1500', '1800', '2100'];
             var resItem={};
             if (!error && response.statusCode == 200) {
@@ -160,38 +161,58 @@ exports.getTodayWeather = (weather_data, flag)=>{
                 for(var time in timeArr){
                     for(var item in list){
                         if(list[item].fcstTime == timeArr[time] && list[item].fcstDate == standardDate){
-                        if(list[item].category=="PTY"){
-                            ptyValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "SKY"){
-                            skyValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "TMN"){
-                            tmnValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "TMX"){
-                            tmxValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "T3H"){
-                            t3hValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "POP"){
-                            popValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "R06"){
-                            rainfallValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "S06"){
-                            snowfallValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "WSD"){
-                            windValue = list[item].fcstValue;
-                        }
-                        if(list[item].category == "REH"){
-                            humidValue = list[item].fcstValue;
-                        }
-                        }
+                            if(list[item].category=="PTY"){
+                                ptyValue = list[item].fcstValue;
+                            }
+                            if(list[item].category == "SKY"){
+                                skyValue = list[item].fcstValue;
+                            }
+                            if(list[item].category == "TMN"){
+                                tmnValue = list[item].fcstValue;
+                            }
+                            if(list[item].category == "TMX"){
+                                tmxValue = list[item].fcstValue;
+                            }
+                            if(list[item].category == "T3H"){
+                                t3hValue = list[item].fcstValue;
+                                
+                            }
+                            if(list[item].category == "POP"){
+                                popValue = list[item].fcstValue;
+                            }
+                            if(list[item].category == "R06"){
+                                rainfallValue = list[item].fcstValue;
+                            }
+                            if(list[item].category == "S06"){
+                                snowfallValue = list[item].fcstValue;
+                            }
+                            if(list[item].category == "WSD"){
+                                windValue = list[item].fcstValue;
+                            }
+                            if(list[item].category == "REH"){
+                                humidValue = list[item].fcstValue;
+                            }
                         
+                            
+                            if(ptyValue != null){
+                                {
+                                    if(ptyValue == 0 && (skyValue != null)){
+                                        sky_message_data = get_sky_message(ptyValue, skyValue);
+                                        //console.log('test');
+                                    }else if((ptyValue == 1 && (rainfallValue != null))){
+                                        sky_message_data = get_sky_message(ptyValue, rainfallValue);
+                                    }else if((ptyValue == 2)){
+                                        sky_message_data = get_sky_message(ptyValue, 0);
+                                    }else if((ptyValue == 3 && (snowfallValue != null))){
+                                        sky_message_data = get_sky_message(ptyValue, snowfallValue);
+                                    }
+                                }  
+                            }
+                            if(t3hValue != null) {
+                                temp_message_data = get_temp_message(t3hValue);
+                                //console.log('test2');
+                            }
+                        }
                         let data = {
                             fcstDate: standardDate,
                             fcstTime: timeArr[time],
@@ -205,7 +226,12 @@ exports.getTodayWeather = (weather_data, flag)=>{
                             snowfallValue: snowfallValue,
                             humid: humidValue,
                             wind: windValue,
+                            temp_message : temp_message_data,
+                            sky_message : sky_message_data
                         }
+                        // console.log(timeArr);
+                        // console.log(time);
+                        //console.log(temp_message_data);
                         resItem[timeArr[time]]=data;
                     }
                 }
@@ -219,6 +245,138 @@ exports.getTodayWeather = (weather_data, flag)=>{
         
         });
     });
+};
+
+
+function range(start, stop, step) {
+    if (typeof stop == 'undefined') {
+        // one param defined
+        stop = start;
+        start = 0;
+    }
+
+    if (typeof step == 'undefined') {
+        step = 1;
+    }
+
+    if ((step > 0 && start >= stop) || (step < 0 && start <= stop)) {
+        return [];
+    }
+
+    var result = [];
+    for (var i = start; step > 0 ? i < stop : i > stop; i += step) {
+        result.push(i);
+    }
+
+    return result;
+};
+
+var get_temp_message = function(temperature){
+    var temp_data = global.temp_data.data;
+
+    if(23 <= temperature && temperature < 28){
+        return temp_data[0];
+    }
+    else if(19 <= temperature && temperature < 23){
+        //console.log(temp_data[1]);
+        //console.log(global.temp_data[1]);
+        return temp_data[1];
+    }
+    else if(17 <= temperature && temperature < 19){
+        return temp_data[2];
+    }
+    else if(12 <= temperature && temperature < 17){
+        return temp_data[3];
+    }
+    else if(10 <= temperature && temperature < 12){
+        return temp_data[4];
+    }
+    else if(6 <= temperature && temperature < 10){
+        return temp_data[5];
+    }
+    else if(0 <= temperature && temperature < 6){
+        return temp_data[6];
+    }
+};
+
+var get_sky_message = function(type, data){
+    var sky_data = global.sky_data.data;
+    switch( type ) {
+        case 0 :  // 하늘
+            switch(data){
+                case 1: // 맑음
+                    return sky_data[0];
+                break
+                case 2: // 구름 조금
+                    return sky_data[1];
+                break
+                case 3: // 구름 많음
+                    return sky_data[2];
+                break
+                case 4: //  흐림
+                    return sky_data[3];
+                break
+                default:
+                break
+            }
+        break;
+        
+        case 1 :  // 강수량
+            if(data < 0.1){
+                return sky_data[4];
+            }
+            else if(0.1 <= data && data < 1){
+                return sky_data[5];
+            }
+            else if(1 <= data && data < 5){
+                return sky_data[6];
+            }
+            else if(5 <= data && data < 10){
+                return sky_data[7];
+            }
+            else if(10 <= data && data < 20){
+                return sky_data[8];
+            }
+            else if(20 <= data && data < 40){
+                return sky_data[9];
+            }
+            else if(40 <= data && data < 70){
+                return sky_data[10];
+            }
+            else if(70 <= data){
+                return sky_data[11];
+            }
+        break;
+        
+        case 2 :  // 진눈깨비
+            return "촉촉한 진눈깨비"
+        break;
+        
+        case 3 :  // 적설량
+            if(data < 0.1){
+                return sky_data[12];
+            }
+            else if(0.1 <= data && data < 1){
+                return sky_data[13];
+            }
+            else if(1 <= data && data < 5){
+                return sky_data[14];
+            }
+            else if(5 <= data && data < 10){
+                return sky_data[15];
+            }
+            else if(10 <= data && data < 20){
+                return sky_data[16];
+            }
+            else if(20 <= data){
+                return sky_data[17];
+            }
+        break;
+        
+        default:
+        break;
+
+    }    
 };
 
 exports.getHeatLife = (weather_data)=>{
@@ -244,25 +402,31 @@ exports.getHeatLife = (weather_data)=>{
         }, function (error, response, body) {
           var today_heat={};
           var tomorrow_heat={};
-          //console.log(body);
+        
           if (!error && response.statusCode == 200) {
-            //console.log(body);z
             var list = JSON.parse(body).Response.body.indexModel;
             var keys = Object.keys(list);
             for (key_index in keys){
                 var key = keys[key_index]
-                if(key.startsWith("h")){
+                
+                if(key[0] == "h"){
                     var num_behind_h = key.substring(1) * 1;
                     if(num_behind_h <= 18){
-                        today_heat.key = list[key];
+                        today_heat = list[key];
                     }else if(num_behind_h <= 36){
-                        tomorrow_heat.key= list[key];
+                        tomorrow_heat= list[key];
                     }
                 }
             }
+
+            var today_heat_message = get_heat_message(today_heat);
+            var tomorrow_heat_message = get_heat_message(tomorrow_heat);
+
             var resItem = {
                 today_heat: today_heat,
                 tomorrow_heat: tomorrow_heat,
+                today_heat_message: today_heat_message,
+                tomorrow_heat_message: tomorrow_heat_message,
             }
       
             resolve(resItem);
@@ -273,6 +437,21 @@ exports.getHeatLife = (weather_data)=>{
         });
     });
 };
+
+var get_heat_message = function(value){
+    var heat_data = global.life_data.data.heat;
+    if(value<32){
+        return heat_data[4];
+    }else if(value >=32 && value<41){
+        return heat_data[3];
+    }else if(value >=41 && value<54){
+        return heat_data[2];
+    }else if(value >=54 && value<65){
+        return heat_data[1];
+    }else if(value >=65){
+        return heat_data[0];
+    }
+}
 
 exports.getUltraVLife = (weather_data)=>{
     var request = require('request');
@@ -310,9 +489,14 @@ exports.getUltraVLife = (weather_data)=>{
                 theDayAfterTomorrow_ultrav=list.theDayAfterTomorrow;
             }
            
+            var today_ultrav_message = get_ultrav_message(today_ultrav);
+            var tomorrow_ultrav_message = get_ultrav_message(tomorrow_ultrav);
+
             var resItem = {
                 today_ultrav: today_ultrav,
                 tomorrow_ultrav: tomorrow_ultrav,
+                today_ultrav_message: today_ultrav_message,
+                tomorrow_ultrav_message: tomorrow_ultrav_message,
             }
       
             resolve(resItem);
@@ -323,6 +507,21 @@ exports.getUltraVLife = (weather_data)=>{
         });
     });
 };
+
+var get_ultrav_message = function(value){
+    var uv_data = global.life_data.data.uv;
+    if(value >=11){
+        return uv_data[0];
+    }else if(value >=8 && value<11){
+        return uv_data[1];
+    }else if(value >=6 && value<8){
+        return uv_data[2];
+    }else if(value >=3 && value<6){
+        return uv_data[3];
+    }else if(value >=0 && value<3){
+        return uv_data[4];
+    }
+}
 
 exports.getMiddleLandWeather = (weather_data)=>{
     var request = require('request');

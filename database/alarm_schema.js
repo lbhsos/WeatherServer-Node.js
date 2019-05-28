@@ -2,11 +2,12 @@ var Schema = { };
 
 Schema.createSchema = function(mongoose){
     var AlarmSchema = mongoose.Schema({
-        time: Date,
-        option: Number,
-        isOn: Boolean
+        tempMessage:{
+            "0": String,
+        }
+
     })
-    
+
     return AlarmSchema;
 }
 
