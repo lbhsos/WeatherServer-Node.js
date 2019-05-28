@@ -17,7 +17,8 @@ var register_user = async(req, res, next)=> {
         var db = req.app.get('database');
         result = await userModel.register_user(db,user_data);
     }catch(error){
-        return res.status(500).json(error);
+        console.log(error);
+        res.status(500).json(error);
     }
     return res.status(200).json(result);
 };

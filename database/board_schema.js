@@ -7,7 +7,7 @@ Schema.createSchema = function(mongoose){
         type: String,
         nickname: String,
         content: String,
-        comment: {type: String},
+        comment: String,
         like: {type: Number, minimum: 0},
         dislike: {type: Number, minimum: 0},
         accusation: Number,

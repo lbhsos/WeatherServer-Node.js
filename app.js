@@ -2,7 +2,6 @@
 const filesystem = require('fs');
 
 const express = require('express');
-const favicon = require('serve-favicon');
 const bodyParser = require('body-Parser');
 const path = require('path');
 const app = express();
@@ -41,7 +40,7 @@ var skycode = filesystem.readFileSync(skyFile);
 var skyjson = JSON.parse(skycode);
 global.sky_data = skyjson;
 
-let lifeFile = './life.json'
+let lifeFile = './data/life.json'
 var lifecode = filesystem.readFileSync(lifeFile);
 var lifejson = JSON.parse(lifecode);
 global.life_data = lifejson;

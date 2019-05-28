@@ -167,7 +167,7 @@ exports.register_user = (db,user_data)=>{
                         lng: user_data.lng,
                         region: user_data.region
                     });
-                    
+                    console.log("hello");
                     newUser.save(function(err){
                         if(err){
                             reject(res_msg[1500]);

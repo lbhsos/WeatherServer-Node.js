@@ -1,7 +1,7 @@
 var Schema = { };
 
 Schema.createSchema = function(mongoose){
-    var BoardSchema = mongoose.Schema({
+    var AccuseSchema = mongoose.Schema({
         id: Number,
         uid: String,
         type: String,
@@ -17,7 +17,7 @@ Schema.createSchema = function(mongoose){
         expireAt: {type: Date},
     })
 
-    return BoardSchema;    
+    return AccuseSchema;    
 }
 
 

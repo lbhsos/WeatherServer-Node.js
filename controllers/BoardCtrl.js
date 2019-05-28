@@ -28,7 +28,7 @@ var write_comment = async(req, res, next)=>{
             comment : req.body.comment,
         }
         var db = req.app.get('database');
-        result = await boardModel.write_board(db, board_data);
+        result = await boardModel.write_comment(db, board_data);
     }catch(error){
         //console.log(error);
         res.status(500).json(error);
@@ -42,7 +42,6 @@ var show_board_all = async(req, res, next)=>{
         const board_data = {
             uid: req.query.uid,
             type:req.query.type,
-            nickname: req.query.nickname
         }
         var db = req.app.get('database');
         result = await boardModel.show_board_all(db,board_data);
@@ -137,7 +136,6 @@ var remove_board = async(req, res, next)=>{
         }
         result = await boardModel.remove_board(db, board_data);
     }catch(error){
-        //console.log(error);
         res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);

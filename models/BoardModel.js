@@ -77,14 +77,15 @@ exports.write_board = (db, board_data)=>{
 exports.write_comment = (db, board_data)=>{
     var database = db; 
         return new Promise((resolve, reject)=>{
-        database.boardModel.findOne({"_id":board_data.id, "uid": board_data.uid, "type": board_data.type}, function(err, result){
+        database.boardModel.findOne({$and:[{_id:board_data.id}, {uid: board_data.uid} ,{type: board_data.type}]}, function(err, result){
             if(err){
                 reject(res_msg[1500]);
             }else{
+                //console.log(result);
                 if(result==null){
                     reject(res_msg[1300]);
                 }else{
-                    database.boardModel.update({$set: {'comment': board_data.comment}}).exec();
+                    database.boardModel.update({"_id" : board_data.id},{$set: {"comment": board_data.comment}}).exec();
                     resolve(null); 
                 }
             }
@@ -230,6 +231,7 @@ exports.remove_board = (db,board_data)=>{
 
 exports.accuse_board = (db, board_data)=>{
     var database = db;
+    
     return new Promise((resolve, reject)=>{
 
         database.boardModel.findOne({"_id":board_data.id}, function(err, result){
@@ -247,10 +249,22 @@ exports.accuse_board = (db, board_data)=>{
                         });
                     }else if(count == 0){
                         var newAccuse = new database.accuseModel({
-                            result
+                            _id: result._id,
+                            content: result.content, 
+                            timestamp: result.timestamp, 
+                            like: result.like, 
+                            dislike: result.dislike, 
+                            accusation: 1,
+                            accuse_type: board_data.index,
+                            expireAt: result.expireAt, 
+                            pos: result.pos,
+                            uid: result.uid,
+                            type: result.type,
+                            nickname: result.nickname,
+                            comment: result.comment,
                         });
-
-                        
+                        database.boardModel.update({"_id":board_data.id}, {$set: {'accusation': count+1}}).exec();
+ 
                         newAccuse.accuse_type = board_data.index;
                         newAccuse.save(function(err){
                             if(err){
@@ -261,7 +275,9 @@ exports.accuse_board = (db, board_data)=>{
                         });
                     }
                     else{
+                        //console.log(count);
                         database.boardModel.update({"_id":board_data.id}, {$set: {'accusation': count+1}}).exec();
+                        database.accuseModel.update({"_id":board_data.id}, {$set: {'accusation': count+1}}).exec();
                         resolve(null);
                     }
                 }
