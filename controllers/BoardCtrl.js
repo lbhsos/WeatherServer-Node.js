@@ -13,7 +13,7 @@ var write_board = async(req, res, next)=>{
         var db = req.app.get('database');
         result = await boardModel.write_board(db, board_data);
     }catch(error){
-        //console.log(error);
+
         res.status(500).json(error);
     }
     return res.status(200).json(result);
@@ -30,7 +30,7 @@ var write_comment = async(req, res, next)=>{
         var db = req.app.get('database');
         result = await boardModel.write_comment(db, board_data);
     }catch(error){
-        //console.log(error);
+       // console.log(error);
         res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
@@ -61,7 +61,7 @@ var like_board = async(req, res, next)=>{
         }
         result = await boardModel.like_board(db,board_data);
     }catch(error){
-        //console.log(error);
+        console.log(error);
         res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
@@ -76,7 +76,7 @@ var like_board_cancel = async(req, res, next)=>{
         }
         result = await boardModel.like_board_cancel(db,board_data);
     }catch(error){
-        //console.log(error);
+       // console.log(error);
         res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
@@ -91,6 +91,7 @@ var dislike_board = async(req, res, next)=>{
         }
         result = await boardModel.dislike_board(db,board_data);
     }catch(error){
+       // console.log(error);
         res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
@@ -105,6 +106,7 @@ var dislike_board_cancel = async(req, res, next)=>{
         }
         result = await boardModel.dislike_board_cancel(db,board_data);
     }catch(error){
+	//console.log(error);
         res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
@@ -119,6 +121,7 @@ var accuse_board = async(req, res, next)=>{
         }
         result = await boardModel.accuse_board(db,board_data);
     }catch(error){
+	//console.log(error);
         res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);
@@ -136,6 +139,7 @@ var remove_board = async(req, res, next)=>{
         }
         result = await boardModel.remove_board(db, board_data);
     }catch(error){
+	//console.log(error);
         res.status(500).json(error);
     }
     return res.status(200).json(res_msg[1200]);

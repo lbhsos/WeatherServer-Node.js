@@ -99,9 +99,12 @@ exports.show_board_all = (db,board_data)=>{
     return new Promise((resolve, reject)=>{
         database.userModel.findOne({"uid":board_data.uid,"type":board_data.type}, function(err, result){
           if(err){
+		console.log(err);
               reject(res_msg[1500]);
           }else{
               if(result==null){
+		console.log(result+"not find uid & type");
+		console.log(board_data.uid+""+board_data.type);
                   reject(res_msg[1300]);
               }else{
                   resolve(result);
@@ -116,7 +119,9 @@ exports.show_board_all = (db,board_data)=>{
                     reject(res_msg[1500]);
                 }else{
                     if(result == null){
-                            reject(res_msg[1300]);
+			console.log("not find pos & expireAt");
+				console.log(board_data.uid+" &&  "+board_data.type);
+                            resolve(null);
                     }else{
                         resolve(result);
                     }
@@ -131,9 +136,11 @@ exports.like_board = (db, board_data)=>{
     return new Promise((resolve, reject)=>{
         database.boardModel.findOne({"_id":board_data.id}, function(err, result){
             if(err){
+		console.log(err);
                 reject(res_msg[1500]);
             }else{
                 if(result == null){
+			console.log(board_data.id);
                     reject(res_msg[1300]);
                 }else{
                     var count = result._doc.like;

@@ -21,8 +21,12 @@ exports.getRealTimeFineDust = (weather_data)=>{
         method: 'GET',
     }, function(error, response, body){
         if (!error && response.statusCode == 200) {
-            var list = JSON.parse(body).list;
-            for(var item in list){
+	try{ 
+           var list = JSON.parse(body).list;
+        }catch(error){
+		console.log(error);
+	}   
+	 for(var item in list){
               if(list[item].cityName==weather_data.cityName){
                 var resItem = {
                     coValue: list[item].coValue,
@@ -87,8 +91,9 @@ exports.getCurrentData = (weather_data)=>{
         var tempValue, humidValue, rainfallValue;
         if (!error && response.statusCode == 200) {
             // console.log(body);
-            var list = JSON.parse(body).response.body.items.item;
-            
+        try{   
+	 var list = JSON.parse(body).response.body.items.item;
+            }catch(error){console.log(error);}
             for(var item in list){
                 if(list[item].category=="T1H"){
                     tempValue= list[item].obsrValue;
@@ -157,8 +162,10 @@ exports.getTodayWeather = (weather_data, flag)=>{
             var timeArr=['0600','0900', '1200', '1500', '1800', '2100'];
             var resItem={};
             if (!error && response.statusCode == 200) {
-                var list = JSON.parse(body).response.body.items.item;
-                for(var time in timeArr){
+                try{
+		var list = JSON.parse(body).response.body.items.item;
+                }catch(error){console.log(error);}
+		for(var time in timeArr){
                     for(var item in list){
                         if(list[item].fcstTime == timeArr[time] && list[item].fcstDate == standardDate){
                             if(list[item].category=="PTY"){
@@ -404,8 +411,10 @@ exports.getHeatLife = (weather_data)=>{
           var tomorrow_heat={};
         
           if (!error && response.statusCode == 200) {
-            var list = JSON.parse(body).Response.body.indexModel;
-            var keys = Object.keys(list);
+            try{
+		var list = JSON.parse(body).Response.body.indexModel;
+            }catch(error){console.log(error);}
+		var keys = Object.keys(list);
             for (key_index in keys){
                 var key = keys[key_index]
                 
@@ -479,8 +488,10 @@ exports.getUltraVLife = (weather_data)=>{
           var today_ultrav;
           var tomorrow_ultrav;
           if (!error && response.statusCode == 200) {
-            var list = JSON.parse(body).Response.body.indexModel;
-            if(flag == 0){
+        try{    
+	var list = JSON.parse(body).Response.body.indexModel;
+        }catch(error){console.log(error);}    
+	if(flag == 0){
                 today_ultrav = list.tomorrow;
                 tomorrow_ultrav = list.theDayAfterTomorrow;
             }else{
@@ -548,8 +559,10 @@ exports.getMiddleLandWeather = (weather_data)=>{
         }, function (error, response, body) {
          
           if (!error && response.statusCode == 200) {
-            var list = JSON.parse(body).response.body.items.item;
-            if(flag==0){
+        try{    
+	var list = JSON.parse(body).response.body.items.item;
+        }catch(error){console.log(error);}    
+		if(flag==0){
                 var resItem = {
                     "regId": list.regId,
                     "wf3Am": list.wf4Am,
@@ -603,8 +616,10 @@ exports.getMiddleTemperature= (weather_data)=>{
         }, function (error, response, body) {
          
           if (!error && response.statusCode == 200) {
-            var list = JSON.parse(body).response.body.items.item;
-            if(flag==0){
+            try{
+		var list = JSON.parse(body).response.body.items.item;
+           }catch(error){console.log(error);}
+		 if(flag==0){
                 var resItem = {
                     "regId": list.regId,
                     "taMin3": list.taMin4,
@@ -652,7 +667,7 @@ exports.show_best_board = (db,pos)=>{
     var database = db;
     return new Promise((resolve, reject)=>{
         var curDate = getCurrentDate();
-        database.boardModel.find({"expireAt":{"$gte": curDate},"pos": pos}, function(err, result){
+        database.boardModel.find({$and:[{"like":{"$gte":5}},{"expireAt":{"$gte": curDate}},{"pos": pos}]}, function(err, result){
             if(err){
                 reject(err);
             }else{

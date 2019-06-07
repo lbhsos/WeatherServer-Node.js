@@ -2,7 +2,7 @@
 const filesystem = require('fs');
 
 const express = require('express');
-const bodyParser = require('body-Parser');
+const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 const config = require('./config');
